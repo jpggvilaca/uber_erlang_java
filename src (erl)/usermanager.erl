@@ -12,10 +12,8 @@ userManager(UsersList) ->
       Step = hd(DataAux),
       case Step of
         "1" ->
-          io:format("é 1 !!"),
           loginmanager ! {request, Pid, Data, UsersList};
         "2" ->
-          io:format("é 2 !!"),
           tripmanager ! {request, Pid, Data}
       end,
       userManager(UsersList);
