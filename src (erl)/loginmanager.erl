@@ -6,9 +6,7 @@ loginManager() ->
   receive
     {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
-      case hd(DataAux) of
-        "trip" ->
-          tripmanager ! {request, Pid, Data, UsersList};
+      case lists:nth(2, DataAux) of
         "reg" -> %% REGISTO
           if
             length(DataAux) > 4 ->

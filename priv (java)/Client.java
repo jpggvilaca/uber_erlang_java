@@ -17,7 +17,8 @@ public class Client {
     BufferedReader input =
       new BufferedReader(new InputStreamReader(sock.getInputStream()));
     PrintWriter output = new PrintWriter(sock.getOutputStream());
-    Transmitter trans = new Transmitter(input, output);
+    Transmitter trans1 = new Transmitter(input, output);
+    Transmitter trans2 = new Transmitter(input, output);
 
     // Init Scanners
     Scanner first = new Scanner(System.in); // Login-Register
@@ -30,8 +31,8 @@ public class Client {
     boolean step2 = false; // Trip
     String step1_option; // Login or register
     String step2_option; // Trip
-    String parsedOption[] = new String[3];
-    String parsedOption_2[] = new String[2];
+    String parsedOption[] = new String[4];
+    String parsedOption_2[] = new String[3];
     System.out.println("Bemvindo ao uber!\n");
     System.out.println("Nota: type = 1 ou 2\n");
     System.out.println("Registo - register:username:password:type");
@@ -48,26 +49,25 @@ public class Client {
       switch (parsedOption[0]) {
         case "register":
           if(new Integer(parsedOption[3]) == 1) { // If it's a driver
-            System.out.println("Veiculo - modelo:matricula\n");
+            System.out.println("Veiculo - modelo:matricula");
             String answer[] = new String[2];
             String mobile = "";
             mobile = car.nextLine();
             answer = mobile.split(":");
-            trans.transmit(sock, "reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]+":"+answer[0]+":"+answer[1]);
+            trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]+":"+answer[0]+":"+answer[1]);
           }
 
           else {
-            System.out.println("entrei aqui\n");
             System.out.println(parsedOption[0]);
-            trans.transmit(sock, "reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
+            trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
           }
 
-          trans.receive(sock);
+          trans1.receive();
 
           break;
         case "login":
-          trans.transmit(sock, "log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
-          trans.receive(sock);
+          trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
+          trans1.receive();
 
           break;
         case "want_trip":
@@ -93,17 +93,17 @@ public class Client {
         System.out.println("\nPassageiro - Opçao: ");
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
-        trans.transmit(sock, "trip:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]);
+        trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]);
       }
 
       else {
         System.out.println("\nCondutor - Opçao: ");
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
-        trans.transmit(sock, "trip:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
+        trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
       }
 
-      trans.receive(sock);
+      trans2.receive();
     }
   }
 }

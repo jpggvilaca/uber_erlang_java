@@ -4,7 +4,7 @@
 %% Handles trip requests
 tripManager() ->
   receive
-    {request, Pid, Data, UsersList} ->
+    {request, Pid, Data} ->
       DataAux = string:tokens(Data,":"),
       case (lists:nth(2, DataAux)) of
         "want_trip" ->

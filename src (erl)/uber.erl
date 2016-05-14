@@ -36,6 +36,12 @@ user(Sock, UserManager, TripManager) ->
     {login_failed} ->
       gen_tcp:send(Sock, "login_failed\n"),
       user(Sock, UserManager, TripManager);
+    {driver_ready} ->
+      gen_tcp:send(Sock, "driver_ready\n"),
+      driver(Sock, TripManager);
+    {driver_error} ->
+      gen_tcp:send(Sock, "driver_error\n"),
+      user(Sock, UserManager, TripManager);
     {tcp_closed, _} ->
       UserManager ! {leave, self()};
     {tcp_error, _, _} ->
@@ -45,18 +51,16 @@ user(Sock, UserManager, TripManager) ->
 driver(Sock, TripManager) ->
   receive
     {tcp, _, Data} ->
-      TripManager ! {tcp_response, self(), Data},
+      TripManager ! {request, self(), Data},
       driver(Sock, TripManager);
-    {request_trip} ->
-      gen_tcp:send(Sock, "request_trip_ok\n"),
+    {want_trip} ->
+      gen_tcp:send(Sock, "want_trip_ok\n"),
       driver(Sock, TripManager);
-    {available_to_drive} ->
-      gen_tcp:send(Sock, "request_trip_ok\n"),
+    {can_drive} ->
+      gen_tcp:send(Sock, "can_drive_ok\n"),
       driver(Sock, TripManager);
     {tcp_closed, _} ->
       TripManager ! {leave, self()};
     {tcp_error, _, _} ->
       TripManager ! {leave, self()}
   end.
-
-% user should become driver or passenger

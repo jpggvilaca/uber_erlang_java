@@ -23,26 +23,26 @@ price(Distance) ->
 
 formatPassengerData(Data) ->
   Result = {
-    lists:nth(2, Data),
     lists:nth(3, Data),
-    lists:nth(4, Data)
+    lists:nth(4, Data),
+    lists:nth(5, Data)
   },
   Result.
 
 formatPassengerTrip(Data) ->
   Result = {
-    lists:nth(2, Data),
-    lists:nth(3, Data)
+    lists:nth(3, Data),
+    lists:nth(4, Data)
   },
   Result.
 
 formatDriverData(Data) ->
   Result = {
-    lists:nth(2, Data),
     lists:nth(3, Data),
     lists:nth(4, Data),
     lists:nth(5, Data),
-    lists:nth(6, Data)
+    lists:nth(6, Data),
+    lists:nth(7, Data)
   },
   Result.
 

@@ -11,7 +11,7 @@ class Transmitter {
     this.output = out;
   }
 
-  public void transmit(Socket socket, String message) throws Exception {
+  public void transmit(String message) throws Exception {
     // Sends to the socket
     Thread speaker = new Thread(new Runnable() {
       public void run() {
@@ -29,7 +29,7 @@ class Transmitter {
     speaker.start();
   }
 
-  public void receive(Socket socket) throws Exception {
+  public void receive() throws Exception {
     // Reads from the socket
     Thread listener = new Thread(new Runnable() {
       public void run() {

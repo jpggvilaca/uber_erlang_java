@@ -8,7 +8,16 @@ userManager(UsersList) ->
       io:format("User entered~n", []),
       userManager(UsersList);
     {tcp_response, Pid, Data} ->
-      loginmanager ! {request, Pid, Data, UsersList},
+      DataAux = string:tokens(Data, ":"),
+      Step = hd(DataAux),
+      case Step of
+        "1" ->
+          io:format("é 1 !!"),
+          loginmanager ! {request, Pid, Data, UsersList};
+        "2" ->
+          io:format("é 2 !!"),
+          tripmanager ! {request, Pid, Data}
+      end,
       userManager(UsersList);
     {register_ok, Pid, NewUsersList} ->
       Pid ! {register_ok},
