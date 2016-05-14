@@ -1,0 +1,23 @@
+Client:
+
+// Register/Login
+register:username:password:type -> registers new user
+login:username:password:type -> login existing user
+
+// Driver
+model:licence -> sets the driver car properties
+x:y -> sets the driver availability to drive and his new home to (x,y)
+
+// Passenger
+want_trip -> starts a new trip
+x1:y1:x2:y2 -> sets the trip request locations
+cancel_trip -> cancels the current trip
+
+---
+
+Server: receives - sends
+reg:username:password:type - register_ok
+log:username:password:type - login_failed/login_ok
+trip:can_drive - driver_ready/driver_error
+trip:want_trip - trip_request/trip_started/trip_error
+trip:cancel_trip - trip_cancel_error/trip_cancel_ok

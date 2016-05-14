@@ -36,7 +36,6 @@ public class Client {
     System.out.println("Nota: type = 1 ou 2\n");
     System.out.println("Registo - register:username:password:type");
     System.out.println("Login - login:username:password");
-    System.out.println("Solicitar viagem - request_trip");
     System.out.println("Sair - quit");
 
 
@@ -82,7 +81,7 @@ public class Client {
 
           break;
         case "quit":
-          System.out.println("Bye bye");
+          System.out.println("Uber says bye\n");
           System.exit(0);
       }
     }
