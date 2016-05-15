@@ -11,10 +11,10 @@ userManager(UsersList) ->
       DataAux = string:tokens(Data, ":"),
       Step = hd(DataAux),
       case Step of
-        "1" ->
+        "1" -> % login/register requests
           loginmanager ! {request, Pid, Data, UsersList};
-        "2" ->
-          tripmanager ! {request, Pid, Data}
+        "2" -> % trip requests
+          tripmanager ! {request, Pid, Data, UsersList}
       end,
       userManager(UsersList);
     {register_ok, Pid, NewUsersList} ->

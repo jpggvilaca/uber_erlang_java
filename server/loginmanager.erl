@@ -9,11 +9,11 @@ loginManager() ->
       case lists:nth(2, DataAux) of
         "reg" -> %% REGISTO
           if
-            length(DataAux) > 4 ->
+            length(DataAux) > 5 ->
               {User,Pw,Type,Model,Licence} = aux:formatDriverData(DataAux),
               NewUsersList = [{User,Pw,Type,Model,Licence}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
-            length(DataAux) =< 4 ->
+            length(DataAux) =< 5 ->
               {User,Pw,Type} = aux:formatPassengerData(DataAux),
               NewUsersList = [{User,Pw,Type,"",""}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList}

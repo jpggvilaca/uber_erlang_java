@@ -7,7 +7,8 @@
   time/1,
   price/1,
   formatPassengerData/1,
-  formatDriverData/1]).
+  formatDriverData/1,
+  set_alarm/2]).
 
 distance({FromX,FromY}, {ToX, ToY}) ->
   abs(FromX - ToX) + abs(FromY - ToY).
@@ -48,3 +49,13 @@ formatDriverData(Data) ->
 
 check_for_drivers(UsersList) ->
   Drivers = lists:keyfind("1", 3, UsersList).
+
+set_alarm(Time, Msg) ->
+  spawn(timer, set, [self(),Time,Msg]).
+
+set(Pid, Time, Alarm) ->
+  receive
+  after
+    Time ->
+      Pid ! Alarm
+  end.

@@ -58,7 +58,6 @@ public class Client {
           }
 
           else {
-            System.out.println(parsedOption[0]);
             trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
           }
 
@@ -89,7 +88,7 @@ public class Client {
     // step2 loop - request trip / available to drive
     while(!step2) {
       if(!isDriver) {
-        System.out.println("\nFormato -> de:para (e.g. (1,2):(2,4))");
+        System.out.println("\nFormato -> deX:deY:paraX:paraY (e.g. 1:2:2:4)");
         System.out.println("\nPassageiro - Opçao: ");
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");

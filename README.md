@@ -4,5 +4,5 @@
 
 - Compile all .erl files: open erlang shell(run erl), and c(name_of_module).
 
-- On erlang shell, run uber:start(8888).
-- On client, run java Client 127.0.0.1 8888
+- On erlang shell, run uber:start(port).
+- On client, run java Client 127.0.0.1 port

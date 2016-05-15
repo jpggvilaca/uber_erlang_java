@@ -4,24 +4,29 @@
 %% Handles trip requests
 tripManager() ->
   receive
-    {request, Pid, Data} ->
+    {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
       case (lists:nth(2, DataAux)) of
         "want_trip" ->
           io:format("want_trip!!~n"),
+          % get a driver
+          % calculate distance and cost
+          % while driver doesnt come
+            % can cancel in the next 1min without cost
+            % or after the 1min with a cost
+          % confirm entering
+          % make the trip
+
           tripManager();
         "can_drive" ->
           io:format("can_drive!!~n"),
+          % add this driver to the list
+          % wait for passengers to call
           tripManager()
       end,
       tripManager();
-    {available_to_drive, Pid, Data} ->
+    {error} ->
       io:format("drivermanager available_to_drive~n")
-      % Insert this user on driverslist
-      % Wait for trip requests
-    % {trip_canceled, Pid} ->
-      % Signal driver
-      % pay the price if > 1 min has passed
   end.
 
 % passengerManager() ->
