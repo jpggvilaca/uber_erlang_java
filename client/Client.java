@@ -66,7 +66,7 @@ public class Client {
             model = answer[0];
             licence = answer[1];
 
-            Driver condutor = new Driver(username, password, new int[2], licence, model);
+            Driver condutor = new Driver(username, password, licence, model);
             trans1.transmit("1:reg:"+username+":"+password+":"+type+":"+model+":"+licence);
           }
 
@@ -81,6 +81,15 @@ public class Client {
         case "login":
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
           trans1.receive();
+
+          System.out.println("Bemvindo " + parsedOption[1]);
+          if(new Integer(parsedOption[3]) == 1) {
+            System.out.println("Condutor, escreva 'can_drive' quando tiver disponível para conduzir\n");
+          }
+
+          else {
+            System.out.println("Passageiro, escreva 'want_trip' quando quiser viajar\n");
+          }
 
           break;
         case "want_trip":
@@ -104,6 +113,7 @@ public class Client {
       if(!isDriver) {
         System.out.println("\nFormato -> deX:deY:paraX:paraY (e.g. 1:2:2:4)");
         System.out.println("\nPassageiro - Opçao: ");
+
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
@@ -111,6 +121,7 @@ public class Client {
 
       else {
         System.out.println("\nCondutor - Opçao: ");
+
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
         trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);

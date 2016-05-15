@@ -9,16 +9,23 @@ tripManager(DriversList) ->
       Driver = aux:check_for_drivers(Users),
       case (lists:nth(2, DataAux)) of
         "want_trip" ->
-          io:format("want_trip!!~n"),
-          % get a driver
+          % Get a driver, his home and the time for him to come
           {Name, Car, Type, Model, Licence} = Driver,
-          % get this passenger data
+          [H|T] = DriversList,
+          {DriverName, DriverCar, {X, Y}} = H,
+          % Get this passenger data
           PassengerData = aux:formatPassengerTrip(DataAux),
           {FromX, FromY, ToX, ToY} = PassengerData,
-          % calculate distance and cost
+          % Calculate distance and cost
+          DriverDelay = aux:time(aux:distance(X,Y, FromX, FromY)),
           Distance = aux:distance(FromX, FromY, ToX, ToY),
           Time = aux:time(Distance),
           Price = aux:price(Distance),
+          io:format("DriverDelay: ~p~n", [DriverDelay]),
+          io:format("Distance: ~p~n", [Distance]),
+          io:format("Time: ~p~n", [Time]),
+          io:format("Price: ~p~n", [Price]),
+          timer:send_after(Time*1000, self(), {tempo}),
           % while driver doesnt come
             % can cancel in the next 1min without cost
             % or after the 1min with a cost
@@ -28,29 +35,16 @@ tripManager(DriversList) ->
           tripManager(DriversList);
         "can_drive" ->
           DriverData = aux:formatDriverTrip(DataAux),
-          io:format("can_drive!!~n"),
-          % add this driver to the list
+          % Add this driver to the list
           {Name, Car, Type, Model, Licence} = Driver,
           {X, Y} = DriverData,
           NewDriversList = [{Name, Car, {X, Y}}|DriversList],
-          % wait for passengers to call
+          % Wait for passengers to call
           tripManager(NewDriversList)
       end,
       tripManager(DriversList);
     {error} ->
-      io:format("drivermanager available_to_drive~n")
+      io:format("drivermanager available_to_drive~n");
+    {tempo} ->
+      io:format("recebi o after~n")
   end.
-
-% passengerManager() ->
-%   receive
-%     {request_trip, Pid, From, To} ->
-%       % check for available drivers
-%       % calculate trip time
-%       % calculate trip cost
-%       % signal the chosen driver (closest or first?)
-%       % tell user that car arrived to "From" (ask to confirm before taking it)
-%       % tell user that they arrived to "To"
-%     {cancel_trip, Pid} ->
-%       % Signal driver
-%       % pay the price if > 1 min has passed
-%   end.

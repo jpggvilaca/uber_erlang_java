@@ -24,7 +24,7 @@ is_driver(Username) ->
   string:substr(Username, 1, 2) == "1_".
 
 time(Distance) ->
-  Distance / ?SPEED.
+  round(Distance / ?SPEED).
 
 price(Distance) ->
   Distance * ?PRICE_PER_BLOCK.
