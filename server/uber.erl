@@ -6,8 +6,9 @@
 %% Create the socket connection, initiate all processes and data
 start(Port) ->
   UsersList = [],
+  DriversList = [],
   UserManager = spawn(fun() -> usermanager:userManager(UsersList) end),
-  TripManager = spawn(fun() -> tripmanager:tripManager() end),
+  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList) end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
   register(tripmanager, TripManager),

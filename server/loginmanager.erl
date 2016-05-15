@@ -20,7 +20,7 @@ loginManager() ->
           end,
           loginManager();
         "log" -> %% LOGIN
-          {User,Pw, Type} = aux:formatPassengerData(DataAux),
+          {User,Pw, _} = aux:formatPassengerData(DataAux),
           if
             length(UsersList) /= 0 ->
               Request = lists:keyfind(User, 1, UsersList),
