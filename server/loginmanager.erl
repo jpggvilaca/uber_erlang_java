@@ -28,7 +28,7 @@ loginManager() ->
                 {_, Pass,_,_,_} ->
                   if
                     Pw == Pass ->
-                      io:format("Login efectuado com sucesso, bemvindo~n~p", [Pid]),
+                      io:format("Login efectuado com sucesso, bemvindo ~p~n", [User]),
                       usermanager ! {login_ok, Pid, UsersList},
                       loginManager();
                     true ->

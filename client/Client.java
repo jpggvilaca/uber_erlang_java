@@ -76,11 +76,15 @@ public class Client {
           }
 
           trans1.receive();
+          while(trans1.getOutput() == null);
+          System.out.println("mensagem é esta man: " + trans1.getOutput());
 
           break;
         case "login":
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
           trans1.receive();
+          while(trans1.getOutput() == null);
+          System.out.println("mensagem é esta man: " + trans1.getOutput());
 
           System.out.println("Bemvindo " + parsedOption[1]);
           if(new Integer(parsedOption[3]) == 1) {

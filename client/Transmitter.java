@@ -1,10 +1,17 @@
 import java.util.*;
+import java.util.concurrent.*;
+import java.lang.*;
 import java.io.*;
 import java.net.*;
 
 class Transmitter {
   BufferedReader input;
   PrintWriter output;
+  String outputMessage;
+
+  public String getOutput() {
+    return outputMessage;
+  }
 
   Transmitter(BufferedReader in, PrintWriter out) {
     this.input = in;
@@ -16,7 +23,7 @@ class Transmitter {
     Thread speaker = new Thread(new Runnable() {
       public void run() {
         try {
-          // System.out.println(message);
+          System.out.println("speaker: " + message);
           output.print(message);
           output.flush();
 
@@ -37,17 +44,21 @@ class Transmitter {
 
         try {
           while((res = input.readLine()) != null) {
-            // System.out.println(res);
+            System.out.println("message received: " + res);
 
-            if (res.equals("\n"))
+            outputMessage = (res);
+
+            if (res.equals("\n")) {
               break;
+            }
            }
         } catch (IOException e) {
           e.printStackTrace();
         }
-      }
+      };
     });
 
     listener.start();
+    listener.join();
   }
 }

@@ -25,7 +25,7 @@ tripManager(DriversList) ->
           io:format("Distance: ~p~n", [Distance]),
           io:format("Time: ~p~n", [Time]),
           io:format("Price: ~p~n", [Price]),
-          timer:send_after(Time*1000, self(), {tempo}),
+          timer:send_after(Time*1000, Pid, {driver_ready}),
           % while driver doesnt come
             % can cancel in the next 1min without cost
             % or after the 1min with a cost
@@ -44,7 +44,5 @@ tripManager(DriversList) ->
       end,
       tripManager(DriversList);
     {error} ->
-      io:format("drivermanager available_to_drive~n");
-    {tempo} ->
-      io:format("recebi o after~n")
+      io:format("drivermanager available_to_drive~n")
   end.
