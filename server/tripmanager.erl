@@ -46,3 +46,8 @@ tripManager(DriversList) ->
     {error} ->
       io:format("drivermanager available_to_drive~n")
   end.
+
+%% TO DO, REST OF THE SOCKET SEND-RECEIVE MESSAGES (driver_ok, trip_ok, etc)
+%% Check for client refactor
+%% Do more Tests
+%% Remove io:formats and System.out.println's

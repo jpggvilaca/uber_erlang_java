@@ -48,9 +48,7 @@ class Transmitter {
 
             outputMessage = (res);
 
-            if (res.equals("\n")) {
-              break;
-            }
+            break;
            }
         } catch (IOException e) {
           e.printStackTrace();
