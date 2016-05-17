@@ -1,53 +1,63 @@
 -module(tripmanager).
--export([tripManager/1]).
+-export([tripManager/0]).
 
 %% Handles trip requests
-tripManager(DriversList) ->
+tripManager() ->
   receive
     {request, Pid, Data, Users} ->
       DataAux = string:tokens(Data,":"),
       Driver = aux:check_for_drivers(Users),
+
       case (lists:nth(2, DataAux)) of
+        %% Passenger
         "want_trip" ->
           % Get a driver, his home and the time for him to come
-          {Name, Car, Type, Model, Licence} = Driver,
-          [H|T] = DriversList,
-          {DriverName, DriverCar, {X, Y}} = H,
+          % {Name, Car, Type, Model, Licence} = Driver,
+          % [H|T] = Users,
+          % {DriverName, DriverCar, {X, Y}} = H,
+
           % Get this passenger data
-          PassengerData = aux:formatPassengerTrip(DataAux),
-          {FromX, FromY, ToX, ToY} = PassengerData,
+          % PassengerData = aux:formatPassengerTrip(DataAux),
+          % {FromX, FromY, ToX, ToY} = PassengerData,
+
           % Calculate distance and cost
-          DriverDelay = aux:time(aux:distance(X,Y, FromX, FromY)),
-          Distance = aux:distance(FromX, FromY, ToX, ToY),
-          Time = aux:time(Distance),
-          Price = aux:price(Distance),
-          io:format("DriverDelay: ~p~n", [DriverDelay]),
-          io:format("Distance: ~p~n", [Distance]),
-          io:format("Time: ~p~n", [Time]),
-          io:format("Price: ~p~n", [Price]),
-          timer:send_after(Time*1000, Pid, {driver_ready}),
+          % isto não pode ser aqui
+          % DriverDelay = aux:time(aux:distance(X,Y, FromX, FromY)),
+          % Distance = aux:distance(FromX, FromY, ToX, ToY),
+          % Time = aux:time(Distance),
+          % Price = aux:price(Distance),
+          % timer:send_after(Time*1000, handletripmanager, {driver_arrived, Pid}),
+
+
           % while driver doesnt come
             % can cancel in the next 1min without cost
             % or after the 1min with a cost
+
           % confirm entering
+
           % make the trip
 
-          tripManager(DriversList);
+
+          tripManager();
+
+
+        %% Driver
         "can_drive" ->
           DriverData = aux:formatDriverTrip(DataAux),
+
           % Add this driver to the list
           {Name, Car, Type, Model, Licence} = Driver,
           {X, Y} = DriverData,
-          NewDriversList = [{Name, Car, {X, Y}}|DriversList],
-          % Wait for passengers to call
-          tripManager(NewDriversList)
-      end,
-      tripManager(DriversList);
-    {error} ->
-      io:format("drivermanager available_to_drive~n")
-  end.
+          % NewDriversList = [{Name, Car, {X, Y}}|Users],
 
-%% TO DO, REST OF THE SOCKET SEND-RECEIVE MESSAGES (driver_ok, trip_ok, etc)
-%% Check for client refactor
-%% Do more Tests
-%% Remove io:formats and System.out.println's
+          % Wait for passengers to call
+          handletripmanager ! {driver_available, Pid, X, Y},
+          tripManager()
+      end,
+
+      tripManager();
+
+    {error} ->
+      io:format("TripManager error~n")
+
+  end.

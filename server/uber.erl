@@ -7,15 +7,16 @@
 start(Port) ->
   UsersList = [],
   DriversList = [],
-  UserManager = spawn(fun() -> usermanager:userManager(UsersList) end),
-  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList) end),
+  UserManager = spawn(fun() -> usermanager:userManager(UsersList, DriversList) end),
+  TripManager = spawn(fun() -> tripmanager:tripManager() end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
+  register(handletripmanager, spawn(fun() -> usermanager:handleTripManager(null, null) end)),
   register(tripmanager, TripManager),
   {ok, LSock} = gen_tcp:listen(Port, ?TCP_OPTIONS),
   acceptor(LSock, UserManager, TripManager).
 
-%% Accept socket connections, becomes a user and spawns another acceptor
+%% Accept socket connections, spawns another acceptor and executes user (becomes user)
 acceptor(LSock, UserManager, TripManager) ->
   {ok, Sock} = gen_tcp:accept(LSock),
   spawn(fun() -> acceptor(LSock, UserManager, TripManager) end),
@@ -26,7 +27,7 @@ acceptor(LSock, UserManager, TripManager) ->
 user(Sock, UserManager, TripManager) ->
   receive
     {tcp, _, Data} ->
-      UserManager ! {tcp_response, self(), Data},
+      UserManager ! {tcp_response, self(), Data}, % UserManager handles all tcp
       user(Sock, UserManager, TripManager);
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
@@ -37,12 +38,19 @@ user(Sock, UserManager, TripManager) ->
     {login_failed} ->
       gen_tcp:send(Sock, "login_failed\n"),
       user(Sock, UserManager, TripManager);
+
+
+    {driver_available} ->
+      gen_tcp:send(Sock, "driver_available\n"),
+      user(Sock, UserManager,TripManager);
     {driver_ready} ->
       gen_tcp:send(Sock, "driver_ready\n"),
-      driver(Sock, TripManager);
+      user(Sock, UserManager,TripManager);
     {driver_error} ->
       gen_tcp:send(Sock, "driver_error\n"),
-      driver(Sock, TripManager);
+      user(Sock, UserManager,TripManager);
+
+
     {tcp_closed, _} ->
       UserManager ! {leave, self()},
       user(Sock, UserManager, TripManager);
@@ -51,20 +59,20 @@ user(Sock, UserManager, TripManager) ->
       user(Sock, UserManager, TripManager)
   end.
 
-driver(Sock, TripManager) ->
-  io:format("SOU DRIVER AGORA~n"),
-  receive
-    {tcp, _, Data} ->
-      TripManager ! {request, self(), Data},
-      driver(Sock, TripManager);
-    {want_trip} ->
-      gen_tcp:send(Sock, "want_trip_ok\n"),
-      driver(Sock, TripManager);
-    {can_drive} ->
-      gen_tcp:send(Sock, "can_drive_ok\n"),
-      driver(Sock, TripManager);
-    {tcp_closed, _} ->
-      TripManager ! {leave, self()};
-    {tcp_error, _, _} ->
-      TripManager ! {leave, self()}
-  end.
+% driver(Sock, TripManager) ->
+%   io:format("SOU DRIVER AGORA~n"),
+%   receive
+%     {tcp, _, Data} ->
+%       TripManager ! {request, self(), Data},
+%       driver(Sock, TripManager);
+%     {want_trip} ->
+%       gen_tcp:send(Sock, "want_trip_ok\n"),
+%       driver(Sock, TripManager);
+%     {can_drive} ->
+%       gen_tcp:send(Sock, "can_drive_ok\n"),
+%       driver(Sock, TripManager);
+%     {tcp_closed, _} ->
+%       TripManager ! {leave, self()};
+%     {tcp_error, _, _} ->
+%       TripManager ! {leave, self()}
+%   end.

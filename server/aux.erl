@@ -2,6 +2,7 @@
 -define(SPEED, 1). %% 1 unit per minute
 -define(PRICE_PER_BLOCK, 5).
 -export([
+  prepend/2,
   distance/4,
   is_driver/1,
   time/1,
@@ -70,9 +71,12 @@ check_for_drivers(UsersList) ->
 set_alarm(Time, Msg) ->
   spawn(timer, set, [self(),Time,Msg]).
 
-set(Pid, Time, Alarm) ->
-  receive
-  after
-    Time ->
-      Pid ! Alarm
-  end.
+% set(Pid, Time, Alarm) ->
+%   receive
+%   after
+%     Time ->
+%       Pid ! Alarm
+%   end.
+
+prepend(X, {}) -> {X};
+prepend(X, {A}) -> {X, A}.
