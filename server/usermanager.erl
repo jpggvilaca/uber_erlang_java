@@ -27,5 +27,6 @@ userManager(UsersList) ->
       Pid ! {login_failed},
       userManager(NewUsersList);
     {leave, _} ->
-      io:format("User left~n", [])
+      io:format("User left~n", []),
+      userManager(UsersList)
   end.

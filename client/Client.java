@@ -77,7 +77,8 @@ public class Client {
 
           trans1.receive();
           while(trans1.getOutput() == null);
-          System.out.println("mensagem é esta man: " + trans1.getOutput());
+          System.out.println("mensagem é esta man: " + trans1.getOutput() + "\n");
+          System.out.println("Por favor faça login");
 
           break;
         case "login":
@@ -115,23 +116,27 @@ public class Client {
     // step2 loop - request trip / available to drive
     while(!step2) {
       if(!isDriver) {
-        System.out.println("\nFormato -> deX:deY:paraX:paraY (e.g. 1:2:2:4)");
-        System.out.println("\nPassageiro - Opçao: ");
+        System.out.println("\nFormato Viagem -> deX:deY:paraX:paraY (e.g. 1:2:2:4)");
+        System.out.println("\nPassageiro - Coordenadas: ");
 
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
+        trans2.receive();
+        while(trans1.getOutput() == null);
+        System.out.println("mensagem é esta man: " + trans2.getOutput());
       }
 
       else {
-        System.out.println("\nCondutor - Opçao: ");
+        System.out.println("\nCondutor - Coordenadas da sua casa (x:y): ");
 
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
         trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
+        trans2.receive();
+        while(trans2.getOutput() == null);
+        System.out.println("mensagem é esta man: " + trans2.getOutput());
       }
-
-      trans2.receive();
     }
   }
 }

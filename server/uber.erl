@@ -42,14 +42,17 @@ user(Sock, UserManager, TripManager) ->
       driver(Sock, TripManager);
     {driver_error} ->
       gen_tcp:send(Sock, "driver_error\n"),
-      user(Sock, UserManager, TripManager);
+      driver(Sock, TripManager);
     {tcp_closed, _} ->
-      UserManager ! {leave, self()};
+      UserManager ! {leave, self()},
+      user(Sock, UserManager, TripManager);
     {tcp_error, _, _} ->
-      UserManager ! {leave, self()}
+      UserManager ! {leave, self()},
+      user(Sock, UserManager, TripManager)
   end.
 
 driver(Sock, TripManager) ->
+  io:format("SOU DRIVER AGORA~n"),
   receive
     {tcp, _, Data} ->
       TripManager ! {request, self(), Data},
