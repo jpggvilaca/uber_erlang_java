@@ -19,7 +19,7 @@ public class Client {
     PrintWriter output = new PrintWriter(sock.getOutputStream());
     Transmitter trans1 = new Transmitter(input, output);
     Transmitter trans2 = new Transmitter(input, output);
-    User utilizador;
+    // User utilizador;
 
     // Init Scanners
     Scanner first = new Scanner(System.in); // Login-Register
@@ -44,6 +44,18 @@ public class Client {
     System.out.println("Login - login:username:password");
     System.out.println("Sair - quit");
 
+    // Tests
+    String testdriver[] = new String[3];
+    String testpassenger[] = new String[3];
+    testdriver[0] = "1:reg:condutor:pass:1:seat:ibiza";
+    testdriver[1] = "1:log:condutor:pass:1";
+    testdriver[2] = "2:can_drive:2:3";
+
+    testpassenger[0] = "1:reg:passageiro:passcenas:1";
+    testpassenger[1] = "1:log:passageiro:passcenas:1";
+    testpassenger[2] = "2:want_trip:2:4:5:6:7";
+
+
 
     // STEP1 LOOP - REGISTER/LOGIN
     while(!step1) {
@@ -52,6 +64,20 @@ public class Client {
       parsedOption = step1_option.split(":");
 
       switch (parsedOption[0]) {
+        case "test-1":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testdriver[i]);
+            trans1.receive();
+          }
+        break;
+
+        case "test-2":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testpassenger[i]);
+            trans1.receive();
+          }
+        break;
+
         case "register":
           // Get User input, parse it, and send it to the socket
           if(new Integer(parsedOption[3]) == 1) { // If it's a driver
@@ -69,13 +95,13 @@ public class Client {
             licence = answer[1];
 
             trans1.transmit("1:reg:"+username+":"+password+":"+type+":"+model+":"+licence);
-            utilizador = new User(username, password, type);
-            utilizador.setCar(model, licence);
+            // utilizador = new User(username, password, type);
+            // utilizador.setCar(model, licence);
           }
 
           else {
             trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
-            utilizador = new User(parsedOption[1], parsedOption[2], parsedOption[3]);
+            // utilizador = new User(parsedOption[1], parsedOption[2], parsedOption[3]);
           }
 
           // Receive from the socket and output message
@@ -96,13 +122,13 @@ public class Client {
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
 
           trans1.receive();
-          result = trans1.getOutput();
+          // result = trans1.getOutput();
 
-          while(result == null);
-          if(result == "login_ok\n") {
+          while(trans1.getOutput() == null);
+          if(trans1.getOutput() == "login_ok\n") {
             System.out.println("Login efectuado com sucesso!\n");
           }
-          else if (result == "login_failed\n") {
+          else if (trans1.getOutput() == "login_failed\n") {
             System.out.println("Login falhou! Tente novamente.");
           }
 
@@ -144,6 +170,7 @@ public class Client {
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
         trans2.receive();
         while(trans2.getOutput() == null);
+        System.out.println(trans2.getOutput());
 
         System.out.println("\nCancelar viagem (cancel_trip): ");
       }
@@ -159,6 +186,7 @@ public class Client {
 
         trans2.receive();
         while(trans2.getOutput() == null);
+        System.out.println(trans2.getOutput());
       }
     }
   }

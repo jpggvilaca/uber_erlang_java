@@ -46,15 +46,15 @@ tripManager() ->
 
         %% Driver
         "can_drive" ->
+          % Get driver Data
           DriverData = aux:formatDriverTrip(DataAux),
 
           % Add this driver to the list
           {Name, Car, Type, Model, Licence} = Driver,
           {X, Y} = DriverData,
-          % NewDriversList = [{Name, Car, {X, Y}}|Users],
 
-          % Wait for passengers to call
-          handletripmanager ! {driver_available, Pid, X, Y},
+          % Signal handleTripManager that this driver is available to work
+          handletripmanager ! {driver_available, self(), X, Y},
           tripManager()
       end;
 

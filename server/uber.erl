@@ -7,12 +7,12 @@
 start(Port) ->
   UsersList = [],
   DriversList = [],
-  TripData = [],
+  PassengersList = [],
   UserManager = spawn(fun() -> usermanager:userManager(UsersList, DriversList) end),
   TripManager = spawn(fun() -> tripmanager:tripManager() end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
-  register(handletripmanager, spawn(fun() -> usermanager:handleTripManager(TripData) end)),
+  register(handletripmanager, spawn(fun() -> usermanager:handleTripManager(DriversList, PassengersList) end)),
   register(tripmanager, TripManager),
   {ok, LSock} = gen_tcp:listen(Port, ?TCP_OPTIONS),
   acceptor(LSock, UserManager, TripManager).
@@ -43,6 +43,7 @@ user(Sock, UserManager, TripManager) ->
 
 
     {driver_available} ->
+      io:format("enviei driver_available"),
       gen_tcp:send(Sock, "driver_available\n"),
       user(Sock, UserManager,TripManager);
     {driver_ready} ->
@@ -50,6 +51,10 @@ user(Sock, UserManager, TripManager) ->
       user(Sock, UserManager,TripManager);
     {driver_error} ->
       gen_tcp:send(Sock, "driver_error\n"),
+      user(Sock, UserManager,TripManager);
+    {driver_arrived} ->
+      io:format("enviei driver_arrived"),
+      gen_tcp:send(Sock, "driver_arrived\n"),
       user(Sock, UserManager,TripManager);
 
 
@@ -61,18 +66,18 @@ user(Sock, UserManager, TripManager) ->
       user(Sock, UserManager, TripManager)
   end.
 
-% driver(Sock, TripManager) ->
+% driver(Sock, UserManager, TripManager) ->
 %   io:format("SOU DRIVER AGORA~n"),
 %   receive
 %     {tcp, _, Data} ->
 %       TripManager ! {request, self(), Data},
-%       driver(Sock, TripManager);
+%       driver(Sock, UserManager,TripManager);
 %     {want_trip} ->
 %       gen_tcp:send(Sock, "want_trip_ok\n"),
-%       driver(Sock, TripManager);
+%       driver(Sock, UserManager,TripManager);
 %     {can_drive} ->
 %       gen_tcp:send(Sock, "can_drive_ok\n"),
-%       driver(Sock, TripManager);
+%       driver(Sock, UserManager,TripManager);
 %     {tcp_closed, _} ->
 %       TripManager ! {leave, self()};
 %     {tcp_error, _, _} ->

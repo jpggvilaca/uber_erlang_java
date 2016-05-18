@@ -1,5 +1,5 @@
 -module(usermanager).
--export([userManager/2, handleTripManager/1]).
+-export([userManager/2, handleTripManager/2]).
 
 %% Handles tcp response from user pre-register/login
 userManager(UsersList, DriversList) ->
@@ -39,23 +39,34 @@ userManager(UsersList, DriversList) ->
       userManager(UsersList, DriversList)
   end.
 
-handleTripManager(TripData) ->
+handleTripManager(DriversList, PassengersList) ->
   receive
-    {driver_arrived, Pid} ->
-      usermanager ! {ready_to_go, Pid},
-      [{Driver, _, _}|_] = TripData,
-      Driver ! {user_wants_to_go},
-      io:format("driver_arrived~n"),
-      handleTripManager(TripData);
+    % {driver_arrived, Pid} -> ISTO AQUI TEM D SER NO DRIVER
+    %   usermanager ! {ready_to_go, Pid},
+    %   Driver = lists:keyfind(isdriver, 1, TripData),
+    %   % Driver ! {user_wants_to_go, DriverPid},
 
-    {driver_available, Pid, X, Y} ->
+    %   io:format("driver_arrived~n"),
+    %   handleTripManager(DriversList, PassengersList);
+
+    {driver_available, Pid, X, Y} -> %% Add the driver to the list
       Pid ! {waiting_for_clients},
       io:format("waiting for clients~n"),
-      NewTripData = [{isdriver, Pid, X, Y}|TripData],
-      handleTripManager(NewTripData);
+      NewDriversList = [{Pid, X, Y} | DriversList],
+      handleTripManager(NewDriversList, PassengersList);
 
     {need_a_trip, Pid, FromX, FromY, ToX, ToY} ->
-      io:format("need_a_trip~n"),
-      NewTripData = [{ispassenger, Pid, FromX, FromY, ToX, ToY}|TripData],
-      handleTripManager(NewTripData)
+      % Add the passenger to the list
+      NewPassengersList = [{Pid, FromX, FromY, ToX, ToY} | PassengersList],
+
+      % Get a driver
+      [H | _] = DriversList,
+      {PassengerPid, X, Y} = H,
+      % Calculate time of Arrival
+      DriverDelay = aux:time(aux:distance(X,Y, FromX, FromY)),
+
+      % Signal the user that driver has arrived
+      timer:send_after(DriverDelay*1000, Pid, {driver_arrived}),
+
+      handleTripManager(DriversList, NewPassengersList)
   end.
