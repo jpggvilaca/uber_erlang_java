@@ -14,11 +14,15 @@ tripManager() ->
           % Get a driver, his home and the time for him to come
           % {Name, Car, Type, Model, Licence} = Driver,
           % [H|T] = Users,
+          % io:format("Users: ~p~n", [Users]),
           % {DriverName, DriverCar, {X, Y}} = H,
+          % io:format("Driver: ~p~n", [Driver]),
 
           % Get this passenger data
-          % PassengerData = aux:formatPassengerTrip(DataAux),
-          % {FromX, FromY, ToX, ToY} = PassengerData,
+          PassengerData = aux:formatPassengerTrip(DataAux),
+          {FromX, FromY, ToX, ToY} = PassengerData,
+
+          handletripmanager ! {need_a_trip, Pid, FromX, FromY, ToX, ToY},
 
           % Calculate distance and cost
           % isto não pode ser aqui
@@ -27,15 +31,14 @@ tripManager() ->
           % Time = aux:time(Distance),
           % Price = aux:price(Distance),
           % timer:send_after(Time*1000, handletripmanager, {driver_arrived, Pid}),
+          % timer:send_after(2000, handletripmanager, {driver_arrived, Pid}),
 
 
           % while driver doesnt come
             % can cancel in the next 1min without cost
             % or after the 1min with a cost
 
-          % confirm entering
-
-          % make the trip
+          % confirm entering and trip starts
 
 
           tripManager();
@@ -53,9 +56,7 @@ tripManager() ->
           % Wait for passengers to call
           handletripmanager ! {driver_available, Pid, X, Y},
           tripManager()
-      end,
-
-      tripManager();
+      end;
 
     {error} ->
       io:format("TripManager error~n")

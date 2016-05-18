@@ -1,5 +1,5 @@
 -module(usermanager).
--export([userManager/2, handleTripManager/2]).
+-export([userManager/2, handleTripManager/1]).
 
 %% Handles tcp response from user pre-register/login
 userManager(UsersList, DriversList) ->
@@ -32,23 +32,30 @@ userManager(UsersList, DriversList) ->
 
     {ready_to_go, Pid} ->
       Pid ! {start_trip},
-      userManager(NewUsersList, DriversList);
+      userManager(UsersList, DriversList);
 
     {leave, _} ->
       io:format("User left~n", []),
       userManager(UsersList, DriversList)
   end.
 
-handleTripManager({Driver, {HomeX, HomeY}}, Passenger) ->
+handleTripManager(TripData) ->
   receive
     {driver_arrived, Pid} ->
       usermanager ! {ready_to_go, Pid},
+      [{Driver, _, _}|_] = TripData,
       Driver ! {user_wants_to_go},
       io:format("driver_arrived~n"),
-      handleTripManager(Driver, Pid);
+      handleTripManager(TripData);
 
     {driver_available, Pid, X, Y} ->
       Pid ! {waiting_for_clients},
       io:format("waiting for clients~n"),
-      handleTripManager({Pid, {X, Y}}, Passenger)
+      NewTripData = [{isdriver, Pid, X, Y}|TripData],
+      handleTripManager(NewTripData);
+
+    {need_a_trip, Pid, FromX, FromY, ToX, ToY} ->
+      io:format("need_a_trip~n"),
+      NewTripData = [{ispassenger, Pid, FromX, FromY, ToX, ToY}|TripData],
+      handleTripManager(NewTripData)
   end.

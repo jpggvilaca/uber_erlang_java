@@ -44,7 +44,7 @@ public class Client {
     System.out.println("Sair - quit");
 
 
-    // step1 loop - register/login
+    // STEP1 LOOP - REGISTER/LOGIN
     while(!step1) {
       System.out.println("\nOpçao: ");
       step1_option = first.nextLine();
@@ -52,6 +52,7 @@ public class Client {
 
       switch (parsedOption[0]) {
         case "register":
+          // Get User input, parse it, and send it to the socket
           if(new Integer(parsedOption[3]) == 1) { // If it's a driver
             System.out.println("Veiculo - modelo:matricula");
 
@@ -75,20 +76,37 @@ public class Client {
             trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
           }
 
+          // Receive from the socket and output message
           trans1.receive();
-          while(trans1.getOutput() == null);
-          System.out.println("mensagem é esta man: " + trans1.getOutput() + "\n");
-          System.out.println("Por favor faça login");
+          String result = trans1.getOutput();
+
+          while(result == null);
+          if(result == "register_ok\n") {
+            System.out.println("Registo efectuado com sucesso!\n");
+            System.out.println("Por favor faça login");
+          }
+          else if (result == "register_failed\n") {
+            System.out.println("Registo falhou! Tente novamente.");
+          }
 
           break;
         case "login":
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
+
           trans1.receive();
-          while(trans1.getOutput() == null);
-          System.out.println("mensagem é esta man: " + trans1.getOutput());
+          result = trans1.getOutput();
+
+          while(result == null);
+          if(result == "login_ok\n") {
+            System.out.println("Login efectuado com sucesso!\n");
+          }
+          else if (result == "login_failed\n") {
+            System.out.println("Login falhou! Tente novamente.");
+          }
 
           System.out.println("Bemvindo " + parsedOption[1]);
-          if(new Integer(parsedOption[3]) == 1) {
+
+          if(new Integer(parsedOption[3]) == 1) { // If his type is equal to 1
             System.out.println("Condutor, escreva 'can_drive' quando tiver disponível para conduzir\n");
           }
 
@@ -113,7 +131,7 @@ public class Client {
       }
     }
 
-    // step2 loop - request trip / available to drive
+    // STEP2 LOOP - REQUEST TRIP / AVAILABLE TO DRIVE
     while(!step2) {
       if(!isDriver) {
         System.out.println("\nFormato Viagem -> deX:deY:paraX:paraY (e.g. 1:2:2:4)");
@@ -125,6 +143,8 @@ public class Client {
         trans2.receive();
         while(trans1.getOutput() == null);
         System.out.println("mensagem é esta man: " + trans2.getOutput());
+
+        System.out.println("\nCancelar viagem (cancel_trip): ");
       }
 
       else {

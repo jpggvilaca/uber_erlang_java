@@ -7,11 +7,12 @@
 start(Port) ->
   UsersList = [],
   DriversList = [],
+  TripData = [],
   UserManager = spawn(fun() -> usermanager:userManager(UsersList, DriversList) end),
   TripManager = spawn(fun() -> tripmanager:tripManager() end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
-  register(handletripmanager, spawn(fun() -> usermanager:handleTripManager(null, null) end)),
+  register(handletripmanager, spawn(fun() -> usermanager:handleTripManager(TripData) end)),
   register(tripmanager, TripManager),
   {ok, LSock} = gen_tcp:listen(Port, ?TCP_OPTIONS),
   acceptor(LSock, UserManager, TripManager).
@@ -29,6 +30,7 @@ user(Sock, UserManager, TripManager) ->
     {tcp, _, Data} ->
       UserManager ! {tcp_response, self(), Data}, % UserManager handles all tcp
       user(Sock, UserManager, TripManager);
+
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
       user(Sock, UserManager, TripManager);
