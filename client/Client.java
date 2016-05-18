@@ -19,6 +19,7 @@ public class Client {
     PrintWriter output = new PrintWriter(sock.getOutputStream());
     Transmitter trans1 = new Transmitter(input, output);
     Transmitter trans2 = new Transmitter(input, output);
+    User utilizador;
 
     // Init Scanners
     Scanner first = new Scanner(System.in); // Login-Register
@@ -67,13 +68,14 @@ public class Client {
             model = answer[0];
             licence = answer[1];
 
-            Driver condutor = new Driver(username, password, licence, model);
             trans1.transmit("1:reg:"+username+":"+password+":"+type+":"+model+":"+licence);
+            utilizador = new User(username, password, type);
+            utilizador.setCar(model, licence);
           }
 
           else {
-            Passenger passageiro = new Passenger(parsedOption[1], parsedOption[2]);
             trans1.transmit("1:reg:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
+            utilizador = new User(parsedOption[1], parsedOption[2], parsedOption[3]);
           }
 
           // Receive from the socket and output message
@@ -141,8 +143,7 @@ public class Client {
         parsedOption_2 = step2_option.split(":");
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
         trans2.receive();
-        while(trans1.getOutput() == null);
-        System.out.println("mensagem é esta man: " + trans2.getOutput());
+        while(trans2.getOutput() == null);
 
         System.out.println("\nCancelar viagem (cancel_trip): ");
       }
@@ -152,10 +153,12 @@ public class Client {
 
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
+        // utilizador.setHome(parsedOption_2);
+
         trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
+
         trans2.receive();
         while(trans2.getOutput() == null);
-        System.out.println("mensagem é esta man: " + trans2.getOutput());
       }
     }
   }

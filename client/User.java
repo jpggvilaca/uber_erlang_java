@@ -2,18 +2,26 @@ import java.util.*;
 import java.io.*;
 import java.lang.*;
 
-public class Driver {
+public class User {
+  // Driver
   public int[] Home;
   public String Model;
   public String Licence;
-  public int TripsMade;
-  public int MoneyReceived;
+
+  // General
+  public String Type;
   public String Username;
   protected String Password;
 
-  Driver(String user, String pass, String l, String m, int home[]) {
+  User() {}
+
+  User(String user, String pass, String type) {
     this.Username = user;
     this.Password = pass;
+    this.Type = type;
+  }
+
+  public void setHome(String home[]) {
     if(home.length > 0) {
       System.arraycopy( home, 0, this.Home, 0, 2 );
     }
@@ -21,15 +29,10 @@ public class Driver {
     else {
       this.Home = new int[2];
     }
-
-    this.TripsMade = 0;
-    this.MoneyReceived = 0;
-    this.Model = m;
-    this.Licence = l;
   }
 
-  public void makeTrip(int Money) {
-    this.TripsMade += 1;
-    this.MoneyReceived += Money;
+  public void setCar(String model, String licence) {
+    this.Model = model;
+    this.Licence = licence;
   }
 }
