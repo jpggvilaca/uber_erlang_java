@@ -11,6 +11,7 @@ tripManager(DriversList, PassengersList) ->
       case (lists:nth(2, DataAux)) of
         %% Passenger
         "want_trip" ->
+          io:format("DriversList: ~p", [DriversList]),
           % Get this passenger data
           PassengerData = aux:formatPassengerTrip(DataAux),
           {FromX, FromY, ToX, ToY} = PassengerData,
@@ -18,16 +19,14 @@ tripManager(DriversList, PassengersList) ->
           NewPassengersList = [Passenger | PassengersList],
 
           % Spawn new passenger
-          spawn(fun() -> passenger(Pid) end),
+          PassengerPid = spawn(fun() -> passenger(Passenger) end),
+          register(activepassenger, PassengerPid),
 
-          % handletripmanager ! {need_a_trip, Pid, FromX, FromY, ToX, ToY},
-
-          % Calculate distance and cost
-          % DriverDelay = aux:time(aux:distance(X,Y, FromX, FromY)),
-          % Distance = aux:distance(FromX, FromY, ToX, ToY),
-          % Time = aux:time(Distance),
-          % Price = aux:price(Distance),
-          % timer:send_after(Time*1000, handletripmanager, {driver_arrived, Pid}),
+          % Signal the client
+          usermanager ! {passenger_added, Pid, PassengerPid},
+          [H|T] = DriversList,
+          {DriverPid,_,_} = H,
+          activedriver ! {trip_request, Pid, FromX, FromY},
 
           % loop
           tripManager(DriversList, NewPassengersList);
@@ -43,7 +42,8 @@ tripManager(DriversList, PassengersList) ->
           NewDriversList = [NewDriver | DriversList],
 
           % Spawn new driver
-          DriverPid = spawn(fun() -> driver(Pid) end),
+          DriverPid = spawn(fun() -> driver(NewDriver) end),
+          register(activedriver, DriverPid),
 
           % Signal the client
           usermanager ! {driver_added, Pid, DriverPid},
@@ -57,20 +57,37 @@ tripManager(DriversList, PassengersList) ->
 
   end.
 
+%% Handles driver logic
+driver(Driver) ->
+  receive
+    % Data should have the passenger pid and X1,Y1,X2,Y2
+    {trip_request, Pid, FromX, FromY} ->
+      % Parse Data
+      {DPid, DX, DY} = Driver,
 
-driver(Pid) ->
-  io:format("Driver").
-  % receive
-  %   % Data should have the passenger pid and X1,Y1,X2,Y2
-  %   {trip_request, Data} ->
+      % Calculate delay
+      Distance = aux:distance(DX, DY, FromX, FromY),
+      Delay = aux:time(Distance),
 
-  %   {cancel_trip, Data} ->
+      io:format("Delay: ~p~n", [Delay]),
 
+      % Send message to passenger warning the arrival
+      timer:send_after(Delay*1000, Pid, {driver_arrived, Driver}),
+
+      % Loop
+      driver(Driver);
+
+    {cancel_request, Data} ->
+      driver(Driver)
+  end.
+
+%% Handles passenger logic
 passenger(Pid) ->
-  io:format("passenger").
-  % receive
+  receive
     % Data should have the driver pid and X, Y
-    % {driver_arrived} ->
+    {driver_arrived, Driver} ->
+      io:format("driver chegou!!~n")
+  end.
 
 
 % trip(Passenger, Driver) ->

@@ -35,6 +35,9 @@ user(Sock, UserManager, TripManager) ->
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
       user(Sock, UserManager, TripManager);
+    % {register_failed} ->
+    %   gen_tcp:send(Sock, "register_failed\n"),
+    %   user(Sock, UserManager, TripManager);
     {login_ok} ->
       gen_tcp:send(Sock, "login_ok\n"),
       user(Sock, UserManager, TripManager);
@@ -47,18 +50,17 @@ user(Sock, UserManager, TripManager) ->
     {driver_available} ->
       gen_tcp:send(Sock, "driver_available\n"),
       user(Sock, UserManager,TripManager);
-    {driver_ready} ->
-      gen_tcp:send(Sock, "driver_ready\n"),
-      user(Sock, UserManager,TripManager);
-    {driver_error} ->
-      gen_tcp:send(Sock, "driver_error\n"),
-      user(Sock, UserManager,TripManager);
     {driver_arrived} ->
       gen_tcp:send(Sock, "driver_arrived\n"),
       user(Sock, UserManager,TripManager);
     {driver_added} ->
-      io:format("driver added"),
       gen_tcp:send(Sock, "driver_added\n"),
+      user(Sock, UserManager,TripManager);
+    {driver_error} ->
+      gen_tcp:send(Sock, "driver_error\n"),
+      user(Sock, UserManager,TripManager);
+    {passenger_added} ->
+      gen_tcp:send(Sock, "passenger_added\n"),
       user(Sock, UserManager,TripManager);
 
 
