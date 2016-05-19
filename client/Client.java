@@ -38,12 +38,6 @@ public class Client {
     // Input variables
     String username, password, type, model, licence;
 
-    // Menu init
-    System.out.println("Bemvindo ao uber!\n");
-    System.out.println("Registo - register:username:password:type");
-    System.out.println("Login - login:username:password");
-    System.out.println("Sair - quit");
-
     // Tests
     String testdriver[] = new String[3];
     String testpassenger[] = new String[3];
@@ -53,7 +47,13 @@ public class Client {
 
     testpassenger[0] = "1:reg:passageiro:passcenas:1";
     testpassenger[1] = "1:log:passageiro:passcenas:1";
-    testpassenger[2] = "2:want_trip:2:4:5:6:7";
+    testpassenger[2] = "2:want_trip:7:5:10:2";
+
+    // Menu init
+    System.out.println("Bemvindo ao uber!\n");
+    System.out.println("Registo - register:username:password:type");
+    System.out.println("Login - login:username:password");
+    System.out.println("Sair - quit");
 
 
 

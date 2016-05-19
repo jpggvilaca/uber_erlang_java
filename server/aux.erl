@@ -12,6 +12,7 @@
   formatPassengerTrip/1,
   formatDriverTrip/1,
   check_for_drivers/1,
+  search_driver_by_pid/2,
   set_alarm/2]).
 
 distance(FromX, FromY, ToX, ToY) ->
@@ -80,3 +81,15 @@ set_alarm(Time, Msg) ->
 
 prepend(X, {}) -> {X};
 prepend(X, {A}) -> {X, A}.
+
+% add_driver({Pid, X, Y}, DriversList) ->
+%   NewDriversList = [{Pid, X, Y} | DriversList],
+%   NewDriversList.
+
+% remove_driver({Pid, X, Y}, DriversList) ->
+%   [H|T] = DriversList,
+%   T.
+
+search_driver_by_pid(Pid, DriversList) ->
+  Driver = lists:keyfind(Pid, 1, DriversList),
+  Driver.
