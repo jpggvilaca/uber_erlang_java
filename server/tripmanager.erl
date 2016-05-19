@@ -46,7 +46,7 @@ tripManager(DriversList, PassengersList) ->
           DriverPid = spawn(fun() -> driver(Pid) end),
 
           % Signal the client
-          usermanager ! {driver_added, self(), DriverPid},
+          usermanager ! {driver_added, Pid, DriverPid},
 
           % Loop
           tripManager(NewDriversList, PassengersList)

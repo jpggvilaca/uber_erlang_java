@@ -31,7 +31,8 @@ userManager(UsersList, DriversList) ->
       userManager(NewUsersList, DriversList);
 
     {driver_added, Pid, DriverPid} ->
-      Pid ! {driver_added};
+      Pid ! {driver_added},
+      userManager(UsersList, DriversList);
 
     {leave, _} ->
       io:format("User left~n", []),
