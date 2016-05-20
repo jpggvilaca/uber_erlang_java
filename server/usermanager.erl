@@ -23,12 +23,15 @@ userManager(UsersList, DriversList) ->
     {register_ok, Pid, NewUsersList} ->
       Pid ! {register_ok},
       userManager(NewUsersList, DriversList);
-    {login_ok, Pid, NewUsersList} ->
+    {register_failed, Pid, UsersList} ->
+      Pid ! {register_failed},
+      userManager(UsersList, DriversList);
+    {login_ok, Pid, UsersList} ->
       Pid ! {login_ok},
-      userManager(NewUsersList, DriversList);
-    {login_failed, Pid, NewUsersList} ->
+      userManager(UsersList, DriversList);
+    {login_failed, Pid, UsersList} ->
       Pid ! {login_failed},
-      userManager(NewUsersList, DriversList);
+      userManager(UsersList, DriversList);
 
     {driver_added, Pid, DriverPid} ->
       Pid ! {driver_added},

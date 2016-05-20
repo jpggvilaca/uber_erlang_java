@@ -35,9 +35,9 @@ user(Sock, UserManager, TripManager) ->
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
       user(Sock, UserManager, TripManager);
-    % {register_failed} ->
-    %   gen_tcp:send(Sock, "register_failed\n"),
-    %   user(Sock, UserManager, TripManager);
+    {register_failed} ->
+      gen_tcp:send(Sock, "register_failed\n"),
+      user(Sock, UserManager, TripManager);
     {login_ok} ->
       gen_tcp:send(Sock, "login_ok\n"),
       user(Sock, UserManager, TripManager);

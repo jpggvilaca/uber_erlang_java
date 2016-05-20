@@ -69,10 +69,8 @@ driver(Driver) ->
       Distance = aux:distance(DX, DY, FromX, FromY),
       Delay = aux:time(Distance),
 
-      io:format("Delay: ~p~n", [Delay]),
-
       % Send message to passenger warning the arrival
-      timer:send_after(Delay*1000, Pid, {driver_arrived, Driver}),
+      timer:send_after(Delay*1000, activepassenger, {driver_arrived, Driver}),
 
       % Loop
       driver(Driver);
@@ -86,7 +84,8 @@ passenger(Pid) ->
   receive
     % Data should have the driver pid and X, Y
     {driver_arrived, Driver} ->
-      io:format("driver chegou!!~n")
+      io:format("driver chegou!!~n"),
+      io:format("Driver: ~p", [Driver])
   end.
 
 

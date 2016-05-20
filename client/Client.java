@@ -47,7 +47,7 @@ public class Client {
 
     testpassenger[0] = "1:reg:passageiro:passcenas:1";
     testpassenger[1] = "1:log:passageiro:passcenas:1";
-    testpassenger[2] = "2:want_trip:7:5:10:2";
+    testpassenger[2] = "2:want_trip:6:6:5:2";
 
     // Menu init
     System.out.println("Bemvindo ao uber!\n");
@@ -68,6 +68,8 @@ public class Client {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testdriver[i]);
             trans1.receive();
+            isDriver = true;
+            step1 = true;
           }
         break;
 
@@ -75,6 +77,8 @@ public class Client {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testpassenger[i]);
             trans1.receive();
+            isDriver = false;
+            step1 = true;
           }
         break;
 

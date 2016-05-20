@@ -13,6 +13,7 @@
   formatDriverTrip/1,
   check_for_drivers/1,
   search_driver_by_pid/2,
+  debug/1,
   set_alarm/2]).
 
 distance(FromX, FromY, ToX, ToY) ->
@@ -89,6 +90,9 @@ prepend(X, {A}) -> {X, A}.
 % remove_driver({Pid, X, Y}, DriversList) ->
 %   [H|T] = DriversList,
 %   T.
+
+debug(Var) ->
+  io:format("~p:~n", [Var]).
 
 search_driver_by_pid(Pid, DriversList) ->
   Driver = lists:keyfind(Pid, 1, DriversList),

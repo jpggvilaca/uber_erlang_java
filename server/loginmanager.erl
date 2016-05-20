@@ -8,16 +8,26 @@ loginManager() ->
       DataAux = string:tokens(Data,":"),
       case lists:nth(2, DataAux) of
         "reg" -> %% REGISTO
+          case lists:keymember(lists:nth(3, DataAux), 1, UsersList) of
+            true ->
+              usermanager ! {register_failed, Pid, UsersList},
+              io:format("Este user já se encontra registado.~n"),
+              UserDoesntExist = false;
+            false ->
+              UserDoesntExist = true
+          end,
           if
-            length(DataAux) > 5 ->
+            (length(DataAux) > 5) and UserDoesntExist ->
               {User,Pw,Type,Model,Licence} = aux:formatDriverData(DataAux),
               NewUsersList = [{User,Pw,Type,Model,Licence}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
 
-            length(DataAux) =< 5 ->
+            (length(DataAux) =< 5) and UserDoesntExist ->
               {User,Pw,Type} = aux:formatPassengerData(DataAux),
               NewUsersList = [{User,Pw,Type,"",""}|UsersList],
-              usermanager ! {register_ok, Pid, NewUsersList}
+              usermanager ! {register_ok, Pid, NewUsersList};
+            true ->
+              loginManager()
           end,
           loginManager();
 
