@@ -30,9 +30,10 @@ public class Client {
     boolean isDriver = false;
     boolean step1 = false; // Login-Register
     boolean step2 = false; // Trip
+    boolean step3 = false; // Trip decisions
     String step1_option; // Login or register
     String step2_option; // Trip
-    String step2_option_2; // Cancel Trip / Enter
+    String step3_option; // Cancel Trip / Enter
     String parsedOption[] = new String[4]; // Login-Register
     String parsedOption_2[] = new String[3]; // Trip
 
@@ -114,7 +115,8 @@ public class Client {
           String result = trans1.getOutput();
 
           while(result == null);
-          if(result == "register_ok\n") {
+          System.out.println("Resultado:" + result);
+          if(result.equals("register_ok")) {
             System.out.println("Registo efectuado com sucesso!\n");
             System.out.println("Por favor faça login");
           }
