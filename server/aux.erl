@@ -84,22 +84,14 @@ set_alarm(Time, Msg) ->
 prepend(X, {}) -> {X};
 prepend(X, {A}) -> {X, A}.
 
-% add_driver({Pid, X, Y}, DriversList) ->
-%   NewDriversList = [{Pid, X, Y} | DriversList],
-%   NewDriversList.
-
-% remove_driver({Pid, X, Y}, DriversList) ->
-%   [H|T] = DriversList,
-%   T.
-
 debug(Var) ->
-  io:format("~p:~n", [Var]).
+  io:format("Var:~n", [Var]).
 
 search_driver_by_pid(Pid, DriversList) ->
   Driver = lists:keyfind(Pid, 1, DriversList),
   Driver.
 
 changeLogState(User, NewState, UsersList) ->
-  {Us, Pw, Ty, Mod, Lic,State} = User,
-  NewList = lists:keyreplace(State, 6, UsersList, {Us, Pw, Ty, Mod, Lic,NewState}),
+  {Pid, Us, Pw, Ty, Mod, Lic,State} = User,
+  NewList = lists:keyreplace(State, 7, UsersList, {Pid, Us, Pw, Ty, Mod, Lic,NewState}),
   NewList.

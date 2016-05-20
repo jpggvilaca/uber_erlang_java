@@ -32,6 +32,7 @@ public class Client {
     boolean step2 = false; // Trip
     String step1_option; // Login or register
     String step2_option; // Trip
+    String step2_option_2; // Cancel Trip / Enter
     String parsedOption[] = new String[4]; // Login-Register
     String parsedOption_2[] = new String[3]; // Trip
 

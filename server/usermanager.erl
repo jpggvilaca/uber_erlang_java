@@ -17,7 +17,7 @@ userManager(UsersList, DriversList) ->
         "1" -> % Delegates control to loginManager
           loginmanager ! {request, Pid, Data, UsersList};
         "2" -> % Delegates control to tripManager
-          tripmanager ! {request, Pid, Data}
+          tripmanager ! {request, Pid, Data, UsersList}
       end,
       userManager(UsersList, DriversList);
 

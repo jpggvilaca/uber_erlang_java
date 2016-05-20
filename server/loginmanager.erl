@@ -19,12 +19,12 @@ loginManager() ->
           if
             (length(DataAux) > 5) and UserDoesntExist ->
               {User,Pw,Type,Model,Licence} = aux:formatDriverData(DataAux),
-              NewUsersList = [{User,Pw,Type,Model,Licence,false}|UsersList],
+              NewUsersList = [{Pid,User,Pw,Type,Model,Licence,false}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
 
             (length(DataAux) =< 5) and UserDoesntExist ->
               {User,Pw,Type} = aux:formatPassengerData(DataAux),
-              NewUsersList = [{User,Pw,Type,"","",false}|UsersList],
+              NewUsersList = [{Pid,User,Pw,Type,"","",false}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
             true ->
               loginManager()
@@ -35,9 +35,9 @@ loginManager() ->
           {User,Pw, _} = aux:formatPassengerData(DataAux),
           if
             (length(UsersList) /= 0) ->
-              Request = lists:keyfind(User, 1, UsersList),
+              Request = lists:keyfind(User, 2, UsersList),
               case Request of
-                {_,Pass,_,_,_,IsLogged} ->
+                {_,_,Pass,_,_,_,IsLogged} ->
                   if
                     (IsLogged == true) ->
                       io:format("Já tem sessão iniciada ~p~n", [User]),
