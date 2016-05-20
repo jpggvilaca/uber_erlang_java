@@ -55,6 +55,9 @@ user(Sock, UserManager, TripManager) ->
     {driver_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
       user(Sock, UserManager,TripManager);
+    {driver_info} ->
+      gen_tcp:send(Sock, "driver_info\n"),
+      user(Sock, UserManager,TripManager);
     {driver_error} ->
       gen_tcp:send(Sock, "driver_error\n"),
       user(Sock, UserManager,TripManager);

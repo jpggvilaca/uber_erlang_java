@@ -73,7 +73,6 @@ driver(Driver) ->
       Price = aux:price(Distance),
       Model = M,
       Licence = L,
-      aux:debug(Delay),
 
       % Send message to tell user the Trip info (cost, distance, etc...)
       activepassenger ! {driver_info, Distance, Delay, Price, Model, Licence},
@@ -95,6 +94,9 @@ passenger(Pid) ->
     {driver_arrived, Driver} ->
       io:format("driver chegou!!~n"),
       io:format("Driver: ~p", [Driver])
+    % {driver_info, Distance, Delay, Price, Model, Licence} ->
+      % cancel or enter car
+
   end.
 
 
