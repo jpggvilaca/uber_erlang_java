@@ -45,7 +45,6 @@ user(Sock, UserManager, TripManager) ->
       gen_tcp:send(Sock, "login_failed\n"),
       user(Sock, UserManager, TripManager);
 
-
     %% TRIP
     {driver_available} ->
       gen_tcp:send(Sock, "driver_available\n"),
@@ -62,7 +61,6 @@ user(Sock, UserManager, TripManager) ->
     {passenger_added} ->
       gen_tcp:send(Sock, "passenger_added\n"),
       user(Sock, UserManager,TripManager);
-
 
     {tcp_closed, _} ->
       UserManager ! {leave, self()},

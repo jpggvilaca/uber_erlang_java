@@ -2,6 +2,7 @@
 -export([userManager/2]).
 
 %% Handles tcp response from user pre-register/login
+%% Acts between login/trip managers and the user
 userManager(UsersList, DriversList) ->
   receive
     {enter, Pid} ->
@@ -26,9 +27,9 @@ userManager(UsersList, DriversList) ->
     {register_failed, Pid, UsersList} ->
       Pid ! {register_failed},
       userManager(UsersList, DriversList);
-    {login_ok, Pid, UsersList} ->
+    {login_ok, Pid, NewUsersList} ->
       Pid ! {login_ok},
-      userManager(UsersList, DriversList);
+      userManager(NewUsersList, DriversList);
     {login_failed, Pid, UsersList} ->
       Pid ! {login_failed},
       userManager(UsersList, DriversList);
@@ -42,5 +43,6 @@ userManager(UsersList, DriversList) ->
 
     {leave, _} ->
       io:format("User left~n", []),
+      io:format("List of active users: ~p~n", [UsersList]),
       userManager(UsersList, DriversList)
   end.

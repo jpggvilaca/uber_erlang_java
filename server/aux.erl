@@ -13,6 +13,7 @@
   formatDriverTrip/1,
   check_for_drivers/1,
   search_driver_by_pid/2,
+  changeLogState/3,
   debug/1,
   set_alarm/2]).
 
@@ -97,3 +98,8 @@ debug(Var) ->
 search_driver_by_pid(Pid, DriversList) ->
   Driver = lists:keyfind(Pid, 1, DriversList),
   Driver.
+
+changeLogState(User, NewState, UsersList) ->
+  {Us, Pw, Ty, Mod, Lic,State} = User,
+  NewList = lists:keyreplace(State, 6, UsersList, {Us, Pw, Ty, Mod, Lic,NewState}),
+  NewList.

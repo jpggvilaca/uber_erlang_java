@@ -19,12 +19,12 @@ loginManager() ->
           if
             (length(DataAux) > 5) and UserDoesntExist ->
               {User,Pw,Type,Model,Licence} = aux:formatDriverData(DataAux),
-              NewUsersList = [{User,Pw,Type,Model,Licence}|UsersList],
+              NewUsersList = [{User,Pw,Type,Model,Licence,false}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
 
             (length(DataAux) =< 5) and UserDoesntExist ->
               {User,Pw,Type} = aux:formatPassengerData(DataAux),
-              NewUsersList = [{User,Pw,Type,"",""}|UsersList],
+              NewUsersList = [{User,Pw,Type,"","",false}|UsersList],
               usermanager ! {register_ok, Pid, NewUsersList};
             true ->
               loginManager()
@@ -34,14 +34,19 @@ loginManager() ->
         "log" -> %% LOGIN
           {User,Pw, _} = aux:formatPassengerData(DataAux),
           if
-            length(UsersList) /= 0 ->
+            (length(UsersList) /= 0) ->
               Request = lists:keyfind(User, 1, UsersList),
               case Request of
-                {_,Pass,_,_,_} ->
+                {_,Pass,_,_,_,IsLogged} ->
                   if
-                    Pw == Pass ->
+                    (IsLogged == true) ->
+                      io:format("Já tem sessão iniciada ~p~n", [User]),
+                      usermanager ! {login_failed, Pid, UsersList},
+                      loginManager();
+                    (Pw == Pass) ->
                       io:format("Login efectuado com sucesso, bemvindo ~p~n", [User]),
-                      usermanager ! {login_ok, Pid, UsersList},
+                      NewUsersList = aux:changeLogState(Request, true, UsersList),
+                      usermanager ! {login_ok, Pid, NewUsersList},
                       loginManager();
                     true ->
                       io:format("Login falhou"),
