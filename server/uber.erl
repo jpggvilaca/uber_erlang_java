@@ -14,60 +14,61 @@ start(Port) ->
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
   register(tripmanager, TripManager),
   {ok, LSock} = gen_tcp:listen(Port, ?TCP_OPTIONS),
-  acceptor(LSock, UserManager, TripManager).
+  acceptor(LSock).
 
 %% Accept socket connections, spawns another acceptor and executes user (becomes user)
-acceptor(LSock, UserManager, TripManager) ->
+acceptor(LSock) ->
   {ok, Sock} = gen_tcp:accept(LSock),
-  spawn(fun() -> acceptor(LSock, UserManager, TripManager) end),
-  UserManager ! {enter, self()},
-  user(Sock, UserManager, TripManager).
+  spawn(fun() -> acceptor(LSock) end),
+  usermanager ! {enter, self()},
+  user(Sock).
 
 %% User instance, direct connection with the client
-user(Sock, UserManager, TripManager) ->
+user(Sock) ->
   receive % From tcp
     {tcp, _, Data} ->
-      UserManager ! {tcp_response, self(), Data}, % Send tcp to UserManager
-      user(Sock, UserManager, TripManager);
+      usermanager ! {tcp_response, self(), Data}, % Send tcp to UserManager
+      user(Sock);
 
-    %% Login / Register
+    % Login / Register
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
-      user(Sock, UserManager, TripManager);
+      user(Sock);
     {register_failed} ->
       gen_tcp:send(Sock, "register_failed\n"),
-      user(Sock, UserManager, TripManager);
+      user(Sock);
     {login_ok} ->
       gen_tcp:send(Sock, "login_ok\n"),
-      user(Sock, UserManager, TripManager);
+      user(Sock);
     {login_failed} ->
       gen_tcp:send(Sock, "login_failed\n"),
-      user(Sock, UserManager, TripManager);
+      user(Sock);
 
-    %% Trip
+    % Trip
     {driver_available} ->
       gen_tcp:send(Sock, "driver_available\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
     {driver_arrived} ->
       gen_tcp:send(Sock, "driver_arrived\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
     {driver_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
     {driver_info} ->
       gen_tcp:send(Sock, "driver_info\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
     {driver_error} ->
       gen_tcp:send(Sock, "driver_error\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
     {passenger_added} ->
       gen_tcp:send(Sock, "passenger_added\n"),
-      user(Sock, UserManager,TripManager);
+      user(Sock);
 
+    % Error/Disconnect
     {tcp_closed, _} ->
-      UserManager ! {leave, self()},
-      user(Sock, UserManager, TripManager);
+      usermanager ! {leave, self()},
+      user(Sock);
     {tcp_error, _, _} ->
-      UserManager ! {leave, self()},
-      user(Sock, UserManager, TripManager)
+      usermanager ! {leave, self()},
+      user(Sock)
   end.

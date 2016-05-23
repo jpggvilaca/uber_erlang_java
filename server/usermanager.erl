@@ -37,9 +37,9 @@ userManager(UsersList, DriversList) ->
     {driver_added, Pid, DriverPid} ->
       Pid ! {driver_added},
       userManager(UsersList, DriversList);
-    % {driver_info, Pid, DriverPid} ->
-    %   Pid ! {driver_info},
-    %   userManager(UsersList, DriversList);
+    {driver_info, Pid, PassengerPid} ->
+      Pid ! {driver_info},
+      userManager(UsersList, DriversList);
     {passenger_added, Pid, PassengerPid} ->
       Pid ! {passenger_added},
       userManager(UsersList, DriversList);
