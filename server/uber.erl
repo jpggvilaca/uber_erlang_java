@@ -26,12 +26,12 @@ acceptor(LSock, UserManager, TripManager) ->
 %% User instance, direct connection with the client
 user(Sock, UserManager, TripManager) ->
   receive
-    %% TCP
+    %% Tcp
     {tcp, _, Data} ->
       UserManager ! {tcp_response, self(), Data}, % Send tcp to UserManager
       user(Sock, UserManager, TripManager);
 
-    %% LOGIN / REGISTER
+    %% Login / Register
     {register_ok} ->
       gen_tcp:send(Sock, "register_ok\n"),
       user(Sock, UserManager, TripManager);
@@ -45,7 +45,7 @@ user(Sock, UserManager, TripManager) ->
       gen_tcp:send(Sock, "login_failed\n"),
       user(Sock, UserManager, TripManager);
 
-    %% TRIP
+    %% Trip
     {driver_available} ->
       gen_tcp:send(Sock, "driver_available\n"),
       user(Sock, UserManager,TripManager);

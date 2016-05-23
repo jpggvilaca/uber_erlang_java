@@ -85,7 +85,7 @@ prepend(X, {}) -> {X};
 prepend(X, {A}) -> {X, A}.
 
 debug(Var) ->
-  io:format("Var:~n", [Var]).
+  io:format("Var:~p~n", [Var]).
 
 search_driver_by_pid(Pid, DriversList) ->
   Driver = lists:keyfind(Pid, 1, DriversList),

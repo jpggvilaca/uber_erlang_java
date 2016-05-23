@@ -15,7 +15,7 @@ handleTripManager(DriversList, PassengersList) ->
       Pid ! {waiting_for_clients},
       io:format("waiting for clients~n"),
       NewDriversList = [{Pid, X, Y} | DriversList],
-      usermanager ! {}
+      % usermanager ! {}
       handleTripManager(NewDriversList, PassengersList);
 
     {need_a_trip, Pid, FromX, FromY, ToX, ToY} ->

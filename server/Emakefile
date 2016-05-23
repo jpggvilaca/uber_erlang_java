@@ -1,0 +1,6 @@
+{'*',
+  [
+    {outdir,"../server"},
+    debug_info
+  ]
+}.
