@@ -34,7 +34,7 @@ class Transmitter {
     });
 
     speaker.start();
-    speaker.join();
+    // speaker.join();
   }
 
   public void receive() throws Exception {
@@ -44,7 +44,7 @@ class Transmitter {
         String res;
 
         try {
-          while((res = input.readLine()) != null) {
+          while((res = input.readLine()) != "\n") {
             System.out.println("message received: " + res);
 
             outputMessage = (res);

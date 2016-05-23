@@ -19,18 +19,21 @@ public class Client {
     PrintWriter output = new PrintWriter(sock.getOutputStream());
     Transmitter trans1 = new Transmitter(input, output);
     Transmitter trans2 = new Transmitter(input, output);
+    Transmitter trans3 = new Transmitter(input, output);
     // User utilizador;
 
     // Init Scanners
     Scanner first = new Scanner(System.in); // Login-Register
+    Scanner second = new Scanner(System.in); // Pre-Trip
+    Scanner third = new Scanner(System.in); // During trip
     Scanner car = new Scanner(System.in); // Model-Licence
-    Scanner second = new Scanner(System.in); // Trip
 
     // Auxiliary variables
     boolean isDriver = false;
+    boolean driverArrived = false;
     boolean step1 = false; // Login-Register
     boolean step2 = false; // Trip
-    boolean step3 = false; // Trip decisions
+    boolean step3 = false; // Cancel Trip / Enter
     String step1_option; // Login or register
     String step2_option; // Trip
     String step3_option; // Cancel Trip / Enter
@@ -54,7 +57,7 @@ public class Client {
     // Menu init
     System.out.println("Bemvindo ao uber!\n");
     System.out.println("Registo - register:username:password:type");
-    System.out.println("Login - login:username:password");
+    System.out.println("Login - login:username:password:type");
     System.out.println("Sair - quit");
 
 
@@ -86,7 +89,7 @@ public class Client {
 
         case "register":
           // Get User input, parse it, and send it to the socket
-          if(new Integer(parsedOption[3]) == 1) { // If it's a driver
+          if(new Integer(parsedOption[3]) == 1) { // If it's a driver ask for model and licence
             System.out.println("Veiculo - modelo:matricula");
 
             String answer[] = new String[2];
@@ -115,10 +118,9 @@ public class Client {
           String result = trans1.getOutput();
 
           while(result == null);
-          System.out.println("Resultado:" + result);
           if(result.equals("register_ok")) {
             System.out.println("Registo efectuado com sucesso!\n");
-            System.out.println("Por favor faça login");
+            System.out.println("Por favor faça login:");
           }
           else if (result == "register_failed\n") {
             System.out.println("Registo falhou! Tente novamente.");
@@ -128,14 +130,15 @@ public class Client {
         case "login":
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
 
+          // Receive from the socket and output message
           trans1.receive();
-          // result = trans1.getOutput();
+          result = trans1.getOutput();
 
-          while(trans1.getOutput() == null);
-          if(trans1.getOutput() == "login_ok\n") {
+          while(result == null);
+          if(result.equals("login_ok\n")) {
             System.out.println("Login efectuado com sucesso!\n");
           }
-          else if (trans1.getOutput() == "login_failed\n") {
+          else if (result.equals("login_failed\n")) {
             System.out.println("Login falhou! Tente novamente.");
           }
 
@@ -174,12 +177,19 @@ public class Client {
 
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
+
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
         trans2.receive();
-        while(trans2.getOutput() == null);
-        System.out.println(trans2.getOutput());
 
-        System.out.println("\nCancelar viagem (cancel_trip): ");
+        String result = trans2.getOutput();
+        while(result == null);
+        if(result.equals("driver_arrived\n")) {
+          driverArrived = true;
+        }
+        System.out.println(result);
+
+        step2 = true;
+        isDriver = false;
       }
 
       else {
@@ -190,11 +200,39 @@ public class Client {
         // utilizador.setHome(parsedOption_2);
 
         trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
-
         trans2.receive();
-        while(trans2.getOutput() == null);
-        System.out.println(trans2.getOutput());
+
+        String result = trans2.getOutput();
+        result = trans2.getOutput();
+        while(result == null);
+        System.out.println(result);
+        step2 = true;
+        isDriver = true;
       }
+    }
+
+    while(!step3) {
+      trans3.receive();
+      String result = trans3.getOutput();
+      // while(result == null);
+
+      if(isDriver) {
+        System.out.println("Condutor step 3:\n");
+        String decision = third.nextLine();
+      }
+
+      // else {
+      //   while(result.equals("driver_arrived\n")) {
+      //     System.out.println("Passageiro step 3:\n");
+      //     System.out.println("\nCancelar viagem (cancel_trip): ");
+      //     String decision = third.nextLine();
+      //   }
+
+      //   if() {
+      //     System.out.println("Condutor chegou!:\n");
+      //     System.out.println("Entrar? (y/n):\n");
+      //   }
+      // }
     }
   }
 }
