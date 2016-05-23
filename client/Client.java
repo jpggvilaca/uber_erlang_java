@@ -212,11 +212,16 @@ public class Client {
     }
 
     while(!step3) {
-      trans3.receive();
-      String result = trans3.getOutput();
+      // trans3.receive();
+      // String result = trans3.getOutput();
       // while(result == null);
 
       if(isDriver) {
+        System.out.println("Condutor step 3:\n");
+        String decision = third.nextLine();
+      }
+
+      else {
         System.out.println("Condutor step 3:\n");
         String decision = third.nextLine();
       }

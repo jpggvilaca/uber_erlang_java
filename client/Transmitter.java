@@ -34,7 +34,7 @@ class Transmitter {
     });
 
     speaker.start();
-    // speaker.join();
+    speaker.join();
   }
 
   public void receive() throws Exception {

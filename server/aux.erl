@@ -12,7 +12,7 @@
   formatPassengerTrip/1,
   formatDriverTrip/1,
   check_for_drivers/1,
-  search_driver_by_pid/2,
+  search_user_by_pid/2,
   changeLogState/3,
   debug/1,
   set_alarm/2]).
@@ -68,7 +68,7 @@ formatDriverData(Data) ->
   Result.
 
 check_for_drivers(UsersList) ->
-  Drivers = lists:keyfind("1", 3, UsersList),
+  Drivers = lists:keyfind("1", 4, UsersList),
   Drivers.
 
 set_alarm(Time, Msg) ->
@@ -87,9 +87,9 @@ prepend(X, {A}) -> {X, A}.
 debug(Var) ->
   io:format("Var:~p~n", [Var]).
 
-search_driver_by_pid(Pid, DriversList) ->
-  Driver = lists:keyfind(Pid, 1, DriversList),
-  Driver.
+search_user_by_pid(Pid, List) ->
+  User = lists:keyfind(Pid, 1, List),
+  User.
 
 changeLogState(User, NewState, UsersList) ->
   {Pid, Us, Pw, Ty, Mod, Lic,State} = User,
