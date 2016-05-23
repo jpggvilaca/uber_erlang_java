@@ -25,8 +25,7 @@ acceptor(LSock, UserManager, TripManager) ->
 
 %% User instance, direct connection with the client
 user(Sock, UserManager, TripManager) ->
-  receive
-    %% Tcp
+  receive % From tcp
     {tcp, _, Data} ->
       UserManager ! {tcp_response, self(), Data}, % Send tcp to UserManager
       user(Sock, UserManager, TripManager);
