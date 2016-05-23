@@ -74,7 +74,7 @@ public class Client {
             trans1.transmit(testdriver[i]);
             trans1.receive();
             isDriver = true;
-            step1 = true;
+            step1 = step2 = true;
           }
         break;
 
@@ -83,13 +83,18 @@ public class Client {
             trans1.transmit(testpassenger[i]);
             trans1.receive();
             isDriver = false;
-            step1 = true;
+            step1 = step2 = true;
           }
         break;
 
         case "register":
+          if(parsedOption.length < 4) {
+            System.out.println("Por favor introduza uma opção válida.");
+            break;
+          }
           // Get User input, parse it, and send it to the socket
           if(new Integer(parsedOption[3]) == 1) { // If it's a driver ask for model and licence
+            System.out.println("Condutor, por favor introduza dados do seu carro\n");
             System.out.println("Veiculo - modelo:matricula");
 
             String answer[] = new String[2];
@@ -128,6 +133,10 @@ public class Client {
 
           break;
         case "login":
+          if(parsedOption.length < 4) {
+            System.out.println("Por favor introduza uma opção válida.");
+            break;
+          }
           trans1.transmit("1:log:"+parsedOption[1]+":"+parsedOption[2]+":"+parsedOption[3]);
 
           // Receive from the socket and output message
@@ -163,6 +172,10 @@ public class Client {
           isDriver = true;
 
           break;
+        default:
+          System.out.println("Por favor introduza uma opção válida.");
+
+          break;
         case "quit":
           System.out.println("Uber says bye\n");
           System.exit(0);
@@ -177,6 +190,11 @@ public class Client {
 
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
+
+        if(parsedOption_2.length < 4) {
+          System.out.println("Por favor introduza uma opção válida.");
+          continue;
+        }
 
         trans2.transmit("2:want_trip:"+parsedOption_2[0]+":"+parsedOption_2[1]+":"+parsedOption_2[2]+":"+parsedOption_2[3]);
         trans2.receive();
@@ -198,6 +216,11 @@ public class Client {
         step2_option = second.nextLine();
         parsedOption_2 = step2_option.split(":");
         // utilizador.setHome(parsedOption_2);
+
+        if(parsedOption_2.length < 4) {
+          System.out.println("Por favor introduza uma opção válida.");
+          continue;
+        }
 
         trans2.transmit("2:can_drive:"+parsedOption_2[0]+":"+parsedOption_2[1]);
         trans2.receive();
