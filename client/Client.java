@@ -171,9 +171,6 @@ public class Client {
 
         String result = trans2.getOutput();
         while(result == null);
-        if(result.equals("driver_arrived\n")) {
-          driverArrived = true;
-        }
         System.out.println(result);
 
         step2 = true;
@@ -205,38 +202,42 @@ public class Client {
     }
 
     while(!step3) {
-      // trans3.receive();
-      // String result = trans3.getOutput();
-      // while(result == null);
-
       if(isDriver) {
-        System.out.println("Condutor step 3:\n");
+        System.out.println("wip\n");
+        String decision = third.nextLine();
+        // trans3.receive();
+        // String result = trans3.getOutput();
+        // while(result == null);
+        // if(result.equals("driver_arrived\n")) {
+        //   System.out.println("Chegou ao destino do passageiro.\n");
+        //   result = trans3.getOutput();
+        //   while(result == null);
+        //   if(result.equals("start_trip\n")) {
+        //     System.out.println("Viagem começou!\n");
+        //   }
+        // }
       }
 
       else {
-        System.out.println("Passageiro step 3:\n");
+        String decision = third.nextLine();
+        trans3.transmit(decision);
+        trans3.receive();
+        String result = trans3.getOutput();
+        System.out.println(result);
+        while(result == null);
+        if(result.equals("driver_arrived\n")) {
+          System.out.println("O condutor chegou ao seu local.\n");
+          System.out.println("Cancelar viagem? (cancel_trip)\n");
+          System.out.println("Iniciar viagem? (start_trip)\n");
+          System.out.println("Opção: ");
+          decision = third.nextLine();
+          trans3.transmit(decision);
+          trans3.receive();
+          result = trans3.getOutput();
+          while(result == null);
+          System.out.println(result);
+        }
       }
-
-      String decision = third.nextLine();
-
-      trans3.transmit(decision);
-      trans3.receive();
-      String result = trans3.getOutput();
-      while(result == null);
-      System.out.println(result);
-
-      // else {
-      //   while(result.equals("driver_arrived\n")) {
-      //     System.out.println("Passageiro step 3:\n");
-      //     System.out.println("\nCancelar viagem (cancel_trip): ");
-      //     String decision = third.nextLine();
-      //   }
-
-      //   if() {
-      //     System.out.println("Condutor chegou!:\n");
-      //     System.out.println("Entrar? (y/n):\n");
-      //   }
-      // }
     }
   }
 }

@@ -1,23 +1,7 @@
 -module(aux).
 -define(SPEED, 1). %% 1 unit per minute
 -define(PRICE_PER_BLOCK, 5).
--export([
-  prepend/2,
-  append/2,
-  distance/4,
-  is_driver/1,
-  time/1,
-  price/1,
-  formatPassengerData/1,
-  formatDriverData/1,
-  formatPassengerTrip/1,
-  formatDriverTrip/1,
-  check_for_drivers/1,
-  search_user_by_pid/2,
-  get_closest_driver/3,
-  changeLogState/3,
-  debug/1,
-  set_alarm/2]).
+-compile(export_all).
 
 distance(FromX, FromY, ToX, ToY) ->
   X1 = list_to_integer(FromX),

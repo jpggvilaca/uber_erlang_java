@@ -66,9 +66,8 @@ tripManager(DriversList, PassengersList, TripList) ->
 
           % Loop
           tripManager(DriversList, PassengersList, TripList);
-        "enter_car" ->
+        "start_trip" ->
           % Get the tuple of this trip
-          aux:debug(TripList),
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
 
           % Parse it

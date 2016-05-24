@@ -12,16 +12,17 @@ x:y -> sets the driver availability to drive and his new home to (x,y)
 want_trip -> starts a new trip
 x1:y1:x2:y2 -> sets the trip request locations
 cancel_trip -> cancels the current trip
+enter_car -> starts the current trip
 
 ---
 
 Server: receives - sends
 --> 1 goes to login manager, 2 goes to tripmanager
-1:reg:username:password:type - register_ok
-1:log:username:password:type - login_failed/login_ok
-2:can_drive - driver_ready/driver_error
+1:reg:username:password:type - register_ok/register_failed
+1:log:username:password:type - login_ok/login_failed
+2:can_drive - driver_added/driver_error
 2:want_trip - trip_request/trip_started/trip_error
-2:cancel_trip - trip_cancel_error/trip_cancel_ok
+2:cancel_trip - trip_cancel_ok/trip_cancel_error
 
 ---
 
@@ -31,3 +32,19 @@ usermanager: handles tcp incoming data, works as a bridge between user and login
 loginmanager: handles login logic
 tripmanager: handles trip logic
 aux: Auxiliary functions used across all modules
+
+---
+
+Driver Flow:
+1) Register (username,password,type,model,licence)
+2) Login
+3) Set availability to drive (can_drive, x:y)
+4) Go back home or stay in the place he arrived after the trip
+5) Logout
+
+Passenger Flow:
+1) Register (username,password,type)
+2) Login
+3) Request trip (from, to)
+4) Enter car or cancel trip
+5) Logout or request another trip

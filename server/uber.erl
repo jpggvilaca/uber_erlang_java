@@ -53,7 +53,7 @@ user(Sock) ->
       gen_tcp:send(Sock, "driver_added\n"),
       driver(Sock);
     {passenger_added} ->
-      gen_tcp:send(Sock, "driver_added\n"),
+      gen_tcp:send(Sock, "passenger_added\n"),
       passenger(Sock);
 
     % Error/Disconnect
@@ -90,7 +90,8 @@ driver(Sock) ->
       driver(Sock);
 
     {trip_ended} ->
-      io:format("Viagem chegou ao fim");
+      gen_tcp:send(Sock, "trip_ended\n"),
+      io:format("Viagem chegou ao fim (Condutor)~n");
 
     {cancel_request, _} ->
       io:format("viagem cancelada"),
@@ -117,13 +118,13 @@ passenger(Sock) ->
       tripmanager ! {tcp_response, self(), Data}, % Send tcp to TripManager
       passenger(Sock);
     {driver_arrived, Driver} ->
-      io:format("driver chegou!!~n"),
-      io:format("Driver: ~p", [Driver]),
+      io:format("Driver ~p  chegou até passageiro!~n", [Driver]),
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
-      io:format("informação do driver chegou!!~n"),
+      io:format("Driver info chegou ao passageiro1~n"),
       passenger(Sock);
     {trip_ended} ->
-      io:format("Viagem chegou ao fim")
+      gen_tcp:send(Sock, "trip_ended\n"),
+      io:format("Viagem chegou ao fim (passageiro)~n")
       % cancel or enter car
   end.
