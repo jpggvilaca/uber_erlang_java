@@ -1,8 +1,9 @@
 -module(tripmanager).
--export([tripManager/0]).
+-export([tripManager/2]).
 
 %% Handles trip requests
-tripManager() ->
+%% Adds passengers and drivers to the lists
+tripManager(DriversList, PassengersList) ->
   receive
     {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
@@ -15,19 +16,22 @@ tripManager() ->
           {FromX, FromY, ToX, ToY} = PassengerData,
           Passenger = {Pid, FromX, FromY, ToX, ToY},
 
-          % Spawn new passenger
-          % PassengerPid = spawn(fun() -> passenger(Passenger) end),
+          % Search for the closest driver
           Driver = aux:search_user_by_pid(Pid, UsersList),
 
-          % Signal the client
+          % test
+          Cenas = aux:get_closest_driver(DriversList, FromX, FromY),
+          aux:debug(Cenas),
+
+          % Send this passenger's info to usermanager
           usermanager ! {passenger_added, Pid, Passenger},
-          ChosenDriver = aux:check_for_drivers(UsersList),
-          {DriverPid, _, _, _, M, L, _} = ChosenDriver,
+
+          {DriverPid, _, _, _, M, L, _} = Driver,
           % {DriverPid,_,_,_,_} = H,
           % DriverPid ! {trip_request, PassengerPid, FromX, FromY},
 
           % loop
-          tripManager();
+          tripManager(DriversList, PassengersList);
           % This user becomes a passenger
           % passenger(Passenger, Driver);
 
@@ -49,12 +53,8 @@ tripManager() ->
           usermanager ! {driver_added, Pid, NewDriver},
 
           % Loop
-          tripManager()
+          tripManager([NewDriver | DriversList], PassengersList)
           % This user becomes a driver
           % driver(NewDriver)
-      end;
-
-    {error} ->
-      io:format("TripManager error~n")
-
+      end
   end.

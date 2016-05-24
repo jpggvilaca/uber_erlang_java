@@ -45,14 +45,34 @@ public class Client {
 
     // Tests
     String testdriver[] = new String[3];
+    String testdriver2[] = new String[3];
+    String testdriver3[] = new String[3];
     String testpassenger[] = new String[3];
+    String testpassenger2[] = new String[3];
+    String testpassenger3[] = new String[3];
     testdriver[0] = "1:reg:condutor:pass:1:seat:ibiza";
     testdriver[1] = "1:log:condutor:pass:1";
     testdriver[2] = "2:can_drive:2:3";
 
+    testdriver2[0] = "1:reg:condutor2:pass2:1:opel:corsa";
+    testdriver2[1] = "1:log:condutor2:pass2:1";
+    testdriver2[2] = "2:can_drive:6:9";
+
+    testdriver3[0] = "1:reg:condutor3:pass3:1:fiat:punto";
+    testdriver3[1] = "1:log:condutor3:pass3:1";
+    testdriver3[2] = "2:can_drive:1:4";
+
     testpassenger[0] = "1:reg:passageiro:passcenas:1";
     testpassenger[1] = "1:log:passageiro:passcenas:1";
     testpassenger[2] = "2:want_trip:6:6:5:2";
+
+    testpassenger2[0] = "1:reg:passageiro2:passcenas2:1";
+    testpassenger2[1] = "1:log:passageiro2:passcenas2:1";
+    testpassenger2[2] = "2:want_trip:1:6:0:3";
+
+    testpassenger3[0] = "1:reg:passageiro3:passcenas3:1";
+    testpassenger3[1] = "1:log:passageiro3:passcenas3:1";
+    testpassenger3[2] = "2:want_trip:6:1:10:4";
 
     // Menu init
     System.out.println("Bemvindo ao uber!\n");
@@ -69,7 +89,7 @@ public class Client {
       parsedOption = step1_option.split(":");
 
       switch (parsedOption[0]) {
-        case "test-1":
+        case "cond":
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testdriver[i]);
             trans1.receive();
@@ -78,9 +98,45 @@ public class Client {
           }
         break;
 
-        case "test-2":
+        case "cond2":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testdriver2[i]);
+            trans1.receive();
+            isDriver = false;
+            step1 = step2 = true;
+          }
+        break;
+
+        case "cond3":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testdriver3[i]);
+            trans1.receive();
+            isDriver = false;
+            step1 = step2 = true;
+          }
+        break;
+
+        case "pass":
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testpassenger[i]);
+            trans1.receive();
+            isDriver = false;
+            step1 = step2 = true;
+          }
+        break;
+
+        case "pass2":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testpassenger2[i]);
+            trans1.receive();
+            isDriver = false;
+            step1 = step2 = true;
+          }
+        break;
+
+        case "pass3":
+          for(int i= 0; i < 3; i++) {
+            trans1.transmit(testpassenger3[i]);
             trans1.receive();
             isDriver = false;
             step1 = step2 = true;
@@ -217,7 +273,7 @@ public class Client {
         parsedOption_2 = step2_option.split(":");
         // utilizador.setHome(parsedOption_2);
 
-        if(parsedOption_2.length < 4) {
+        if(parsedOption_2.length > 2) {
           System.out.println("Por favor introduza uma opção válida.");
           continue;
         }

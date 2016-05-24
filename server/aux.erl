@@ -13,6 +13,7 @@
   formatDriverTrip/1,
   check_for_drivers/1,
   search_user_by_pid/2,
+  get_closest_driver/3,
   changeLogState/3,
   debug/1,
   set_alarm/2]).
@@ -70,6 +71,21 @@ formatDriverData(Data) ->
 check_for_drivers(UsersList) ->
   Drivers = lists:keyfind("1", 4, UsersList),
   Drivers.
+
+get_closest_driver(DriversList, PassengerX, PassengerY) ->
+  GetDistances = fun({Pid, X, Y, M, L}) ->
+    distance(X, Y, PassengerX, PassengerY) end
+  ,
+  GetDistancesWithPid = fun({Pid, X, Y, M, L}) ->
+    {Pid, distance(X, Y, PassengerX, PassengerY)} end
+  ,
+  Distances = lists:map(GetDistances, DriversList),
+  MinimumDistance = lists:min(Distances),
+  Drivers = lists:map(GetDistancesWithPid, DriversList),
+  ClosestDriverPid = lists:keyfind(MinimumDistance, 2, Drivers),
+  {DriverPid, Dist} = ClosestDriverPid,
+  ClosestDriver = lists:keyfind(DriverPid, 1, DriversList),
+  ClosestDriver.
 
 set_alarm(Time, Msg) ->
   spawn(timer, set, [self(),Time,Msg]).
