@@ -38,7 +38,8 @@ public class Client {
     String step2_option; // Trip
     String step3_option; // Cancel Trip / Enter
     String parsedOption[] = new String[4]; // Login-Register
-    String parsedOption_2[] = new String[3]; // Trip
+    String parsedOption_2[] = new String[3]; // TripManager
+    String parsedOption_3[] = new String[1]; // Trip itself
 
     // Input variables
     String username, password, type, model, licence;
@@ -210,13 +211,19 @@ public class Client {
 
       if(isDriver) {
         System.out.println("Condutor step 3:\n");
-        String decision = third.nextLine();
       }
 
       else {
-        System.out.println("Condutor step 3:\n");
-        String decision = third.nextLine();
+        System.out.println("Passageiro step 3:\n");
       }
+
+      String decision = third.nextLine();
+
+      trans3.transmit(decision);
+      trans3.receive();
+      String result = trans3.getOutput();
+      while(result == null);
+      System.out.println(result);
 
       // else {
       //   while(result.equals("driver_arrived\n")) {

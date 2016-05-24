@@ -3,6 +3,7 @@
 -define(PRICE_PER_BLOCK, 5).
 -export([
   prepend/2,
+  append/2,
   distance/4,
   is_driver/1,
   time/1,
@@ -99,6 +100,9 @@ set_alarm(Time, Msg) ->
 
 prepend(X, {}) -> {X};
 prepend(X, {A}) -> {X, A}.
+
+append(X, {}) -> {X};
+append(X, {A}) -> {A, X}.
 
 debug(Var) ->
   io:format("Var:~p~n", [Var]).

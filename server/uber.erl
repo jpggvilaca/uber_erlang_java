@@ -8,8 +8,9 @@ start(Port) ->
   UsersList = [],
   DriversList = [],
   PassengersList = [],
+  TripList = [], % Passenger-Driver tuples
   UserManager = spawn(fun() -> usermanager:userManager(UsersList) end),
-  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList) end),
+  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList, TripList) end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
   register(tripmanager, TripManager),
@@ -50,10 +51,10 @@ user(Sock) ->
       user(Sock);
     {driver_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
-      driver();
+      driver(Sock);
     {passenger_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
-      passenger();
+      passenger(Sock);
 
     % Error/Disconnect
     {tcp_closed, _} ->
@@ -65,7 +66,7 @@ user(Sock) ->
   end.
 
 %% Handles driver logic
-driver() ->
+driver(Sock) ->
   receive
     {trip_request, Driver, Passenger, FromX, FromY} ->
       % Parse Data
@@ -86,15 +87,18 @@ driver() ->
       timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
 
       % Loop
-      driver();
+      driver(Sock);
+
+    {trip_ended} ->
+      io:format("Viagem chegou ao fim");
 
     {cancel_request, _} ->
       io:format("viagem cancelada"),
-      driver()
+      driver(Sock)
   end.
 
 %% Handles passenger logic
-passenger() ->
+passenger(Sock) ->
   % if
   %   length(DriversList) > 0 ->
   %     % Fetch the X and Y from the passenger's current location
@@ -108,14 +112,18 @@ passenger() ->
   %   true ->
   %     io:format("DriversList vazia")
   % end,
-
   receive
+    {tcp, _, Data} ->
+      tripmanager ! {tcp_response, self(), Data}, % Send tcp to TripManager
+      passenger(Sock);
     {driver_arrived, Driver} ->
       io:format("driver chegou!!~n"),
       io:format("Driver: ~p", [Driver]),
-      passenger();
+      passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
       io:format("informação do driver chegou!!~n"),
-      passenger()
+      passenger(Sock);
+    {trip_ended} ->
+      io:format("Viagem chegou ao fim")
       % cancel or enter car
   end.
