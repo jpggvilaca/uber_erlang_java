@@ -34,15 +34,15 @@ userManager(UsersList) ->
       Pid ! {login_failed},
       userManager(UsersList);
 
-    % {driver_added, Pid, NewDriver} ->
-    %   Pid ! {driver_added, NewDriver, PassengersList},
-    %   userManager(UsersList);
-    % {driver_info, Pid, PassengerPid} ->
-    %   Pid ! {driver_info},
-    %   userManager(UsersList);
-    % {passenger_added, Pid, Passenger} ->
-    %   Pid ! {passenger_added, Passenger, DriversList},
-    %   userManager(UsersList);
+    {driver_added, Pid} ->
+      Pid ! {driver_added},
+      userManager(UsersList);
+    {driver_info, Pid} ->
+      Pid ! {driver_info},
+      userManager(UsersList);
+    {passenger_added, Pid} ->
+      Pid ! {passenger_added},
+      userManager(UsersList);
 
     {leave, Pid} ->
       User = aux:search_user_by_pid(Pid, UsersList),

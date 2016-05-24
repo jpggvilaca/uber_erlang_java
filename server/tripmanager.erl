@@ -17,23 +17,19 @@ tripManager(DriversList, PassengersList) ->
           Passenger = {Pid, FromX, FromY, ToX, ToY},
 
           % Search for the closest driver
-          Driver = aux:search_user_by_pid(Pid, UsersList),
+          Driver = aux:get_closest_driver(DriversList, FromX, FromY),
 
-          % test
-          Cenas = aux:get_closest_driver(DriversList, FromX, FromY),
-          aux:debug(Cenas),
+          % Get driver's pid
+          {DriverPid, _, _, _, _} = Driver,
 
-          % Send this passenger's info to usermanager
-          usermanager ! {passenger_added, Pid, Passenger},
+          % Send a trip request to the driver with the passenger info
+          DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
 
-          {DriverPid, _, _, _, M, L, _} = Driver,
-          % {DriverPid,_,_,_,_} = H,
-          % DriverPid ! {trip_request, PassengerPid, FromX, FromY},
+          % Signal usermanager to spawn passenger process
+          usermanager ! {passenger_added, Pid},
 
-          % loop
-          tripManager(DriversList, PassengersList);
-          % This user becomes a passenger
-          % passenger(Passenger, Driver);
+          % Loop
+          tripManager(DriversList, [Passenger | PassengersList]);
 
         %% Driver
         "can_drive" ->
@@ -46,15 +42,10 @@ tripManager(DriversList, PassengersList) ->
           {X, Y} = DriverData,
           NewDriver = {Pid, X, Y, M, L},
 
-          % Spawn new driver
-          % DriverPid = spawn(fun() -> driver(NewDriver) end),
-
-          % Signal the client
-          usermanager ! {driver_added, Pid, NewDriver},
+          % Signal usermanager to spawn driver process
+          usermanager ! {driver_added, Pid},
 
           % Loop
           tripManager([NewDriver | DriversList], PassengersList)
-          % This user becomes a driver
-          % driver(NewDriver)
       end
   end.
