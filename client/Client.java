@@ -20,7 +20,6 @@ public class Client {
     Transmitter trans1 = new Transmitter(input, output);
     Transmitter trans2 = new Transmitter(input, output);
     Transmitter trans3 = new Transmitter(input, output);
-    // User utilizador;
 
     // Init Scanners
     Scanner first = new Scanner(System.in); // Login-Register
@@ -219,8 +218,6 @@ public class Client {
       }
 
       else {
-        String decision = third.nextLine();
-        trans3.transmit(decision);
         trans3.receive();
         String result = trans3.getOutput();
         System.out.println(result);
@@ -230,7 +227,7 @@ public class Client {
           System.out.println("Cancelar viagem? (cancel_trip)\n");
           System.out.println("Iniciar viagem? (start_trip)\n");
           System.out.println("Opção: ");
-          decision = third.nextLine();
+          String decision = third.nextLine();
           trans3.transmit(decision);
           trans3.receive();
           result = trans3.getOutput();

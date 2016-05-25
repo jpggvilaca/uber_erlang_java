@@ -100,28 +100,20 @@ driver(Sock) ->
 
 %% Handles passenger logic
 passenger(Sock) ->
-  % if
-  %   length(DriversList) > 0 ->
-  %     % Fetch the X and Y from the passenger's current location
-  %     [H|T] = DriversList,
-  %     {Pid, _, _,_,_} = H,
-  %     {_, FromX, FromY, _, _} = Passenger,
-
-  %     % Send a trip_request to the driver
-  %     Pid ! {trip_request, self(), FromX, FromY},
-  %     [DriversList -- [H]];
-  %   true ->
-  %     io:format("DriversList vazia")
-  % end,
   receive
     {tcp, _, Data} ->
-      tripmanager ! {tcp_response, self(), Data}, % Send tcp to TripManager
+      tripmanager ! {tcp_response, self(), Data},
       passenger(Sock);
     {driver_arrived, Driver} ->
       io:format("Driver ~p  chegou até passageiro!~n", [Driver]),
+      gen_tcp:send(Sock, "driver_arrived\n"),
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
-      io:format("Driver info chegou ao passageiro1~n"),
+      io:format("Driver info chegou ao passageiro~n"),
+      gen_tcp:send(Sock, "driver_info\n"),
+      passenger(Sock);
+    {no_drivers_available} ->
+      io:format("Não há condutores disponíveis~n"),
       passenger(Sock);
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),

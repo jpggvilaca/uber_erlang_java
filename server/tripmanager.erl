@@ -16,24 +16,30 @@ tripManager(DriversList, PassengersList, TripList) ->
           {FromX, FromY, ToX, ToY} = PassengerData,
           Passenger = {Pid, FromX, FromY, ToX, ToY},
 
-          % Search for the closest driver
-          Driver = aux:get_closest_driver(DriversList, FromX, FromY),
-
-          % Get driver's pid
-          {DriverPid, _, _, _, _} = Driver,
-
-          % Send a trip request to the driver with the passenger info
-          DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
-
-          % Add a tuple to the TripList
-          NewTripList = [{DriverPid, Pid} | TripList],
+          % DRIVER AVAILABLE REMEMBER
 
           % Signal usermanager to spawn passenger process
           usermanager ! {passenger_added, Pid},
 
-          % Loop
-          tripManager(DriversList, [Passenger | PassengersList], NewTripList);
+          if
+            length(DriversList) > 0 ->
+              % Search for the closest driver
+              Driver = aux:get_closest_driver(DriversList, FromX, FromY),
 
+              % Get driver's pid
+              {DriverPid, _, _, _, _} = Driver,
+
+              % Send a trip request to the driver with the passenger info
+              DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
+
+              % Add a tuple to the TripList
+              NewTripList = [{DriverPid, Pid} | TripList],
+
+              tripManager(DriversList, [Passenger | PassengersList], NewTripList);
+            true ->
+              usermanager ! {no_drivers_available, Pid},
+              tripManager(DriversList, [Passenger | PassengersList], TripList)
+          end;
         %% Driver
         "can_drive" ->
           % Get driver location (x,y), model and licence
@@ -59,7 +65,7 @@ tripManager(DriversList, PassengersList, TripList) ->
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
 
           % Parse it
-          {DPid, PPid} = Driver_Passenger,
+          {DPid, _} = Driver_Passenger,
 
           % Send the message to the driver
           DPid ! {cancel_request, Pid},

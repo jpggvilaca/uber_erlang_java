@@ -21,12 +21,12 @@ public class Tests {
 
     Scanner first = new Scanner(System.in);
 
-    String testdriver[] = new String[3];
-    String testdriver2[] = new String[3];
-    String testdriver3[] = new String[3];
-    String testpassenger[] = new String[3];
-    String testpassenger2[] = new String[3];
-    String testpassenger3[] = new String[3];
+    String testdriver[] = new String[4];
+    String testdriver2[] = new String[4];
+    String testdriver3[] = new String[4];
+    String testpassenger[] = new String[4];
+    String testpassenger2[] = new String[4];
+    String testpassenger3[] = new String[4];
     testdriver[0] = "1:reg:condutor:pass:1:seat:ibiza";
     testdriver[1] = "1:log:condutor:pass:1";
     testdriver[2] = "2:can_drive:2:3";
@@ -42,20 +42,20 @@ public class Tests {
     testpassenger[0] = "1:reg:passageiro:passcenas:1";
     testpassenger[1] = "1:log:passageiro:passcenas:1";
     testpassenger[2] = "2:want_trip:6:6:5:2";
+    testpassenger[3] = "start_trip";
 
     testpassenger2[0] = "1:reg:passageiro2:passcenas2:1";
     testpassenger2[1] = "1:log:passageiro2:passcenas2:1";
     testpassenger2[2] = "2:want_trip:1:6:0:3";
+    testpassenger2[3] = "start_trip";
 
     testpassenger3[0] = "1:reg:passageiro3:passcenas3:1";
     testpassenger3[1] = "1:log:passageiro3:passcenas3:1";
     testpassenger3[2] = "2:want_trip:6:1:10:4";
+    testpassenger3[3] = "start_trip";
 
     // Menu init
-    System.out.println("Bemvindo ao uber!\n");
-    System.out.println("Registo - register:username:password:type");
-    System.out.println("Login - login:username:password:type");
-    System.out.println("Sair - quit");
+    System.out.println("Opção: \n");
 
     // STEP1 LOOP - REGISTER/LOGIN
     while(!step1) {
@@ -68,8 +68,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testdriver[i]);
             trans1.receive();
-            isDriver = true;
-            step1 = step2 = true;
           }
         break;
 
@@ -77,8 +75,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testdriver2[i]);
             trans1.receive();
-            isDriver = false;
-            step1 = step2 = true;
           }
         break;
 
@@ -86,8 +82,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testdriver3[i]);
             trans1.receive();
-            isDriver = false;
-            step1 = step2 = true;
           }
         break;
 
@@ -95,8 +89,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testpassenger[i]);
             trans1.receive();
-            isDriver = false;
-            step1 = step2 = true;
           }
         break;
 
@@ -104,8 +96,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testpassenger2[i]);
             trans1.receive();
-            isDriver = false;
-            step1 = step2 = true;
           }
         break;
 
@@ -113,8 +103,6 @@ public class Tests {
           for(int i= 0; i < 3; i++) {
             trans1.transmit(testpassenger3[i]);
             trans1.receive();
-            isDriver = false;
-            step1 = step2 = true;
           }
         break;
       }

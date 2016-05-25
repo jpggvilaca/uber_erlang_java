@@ -23,7 +23,7 @@ class Transmitter {
     Thread speaker = new Thread(new Runnable() {
       public void run() {
         try {
-          System.out.println("speaker: " + message);
+          System.out.println("Received from socket: " + message);
           output.print(message);
           output.flush();
 

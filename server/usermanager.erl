@@ -43,6 +43,9 @@ userManager(UsersList) ->
     {passenger_added, Pid} ->
       Pid ! {passenger_added},
       userManager(UsersList);
+    {no_drivers_available, Pid} ->
+      Pid ! {no_drivers_available},
+      userManager(UsersList);
 
     {leave, Pid} ->
       User = aux:search_user_by_pid(Pid, UsersList),
