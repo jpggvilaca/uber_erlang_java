@@ -55,6 +55,9 @@ user(Sock) ->
     {passenger_added} ->
       gen_tcp:send(Sock, "passenger_added\n"),
       passenger(Sock);
+    {driver_available} ->
+      gen_tcp:send(Sock, "driver_available\n"),
+      passenger(Sock);
 
     % Error/Disconnect
     {tcp_closed, _} ->
@@ -111,6 +114,9 @@ passenger(Sock) ->
     {driver_info, Distance, Delay, Price, Model, Licence} ->
       io:format("Driver info chegou ao passageiro~n"),
       gen_tcp:send(Sock, "driver_info\n"),
+      passenger(Sock);
+    {driver_available} ->
+      io:format("Já há condutores disponíveis~n"),
       passenger(Sock);
     {no_drivers_available} ->
       io:format("Não há condutores disponíveis~n"),

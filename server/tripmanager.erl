@@ -16,8 +16,6 @@ tripManager(DriversList, PassengersList, TripList) ->
           {FromX, FromY, ToX, ToY} = PassengerData,
           Passenger = {Pid, FromX, FromY, ToX, ToY},
 
-          % DRIVER AVAILABLE REMEMBER
-
           % Signal usermanager to spawn passenger process
           usermanager ! {passenger_added, Pid},
 
@@ -31,6 +29,7 @@ tripManager(DriversList, PassengersList, TripList) ->
 
               % Send a trip request to the driver with the passenger info
               DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
+              % usermanager ! {driver_available, Pid},
 
               % Add a tuple to the TripList
               NewTripList = [{DriverPid, Pid} | TripList],
@@ -38,7 +37,8 @@ tripManager(DriversList, PassengersList, TripList) ->
               tripManager(DriversList, [Passenger | PassengersList], NewTripList);
             true ->
               usermanager ! {no_drivers_available, Pid},
-              tripManager(DriversList, [Passenger | PassengersList], TripList)
+              NewTripList = [{is_waiting, Pid} | TripList],
+              tripManager(DriversList, [Passenger | PassengersList], NewTripList)
           end;
         %% Driver
         "can_drive" ->
@@ -51,14 +51,29 @@ tripManager(DriversList, PassengersList, TripList) ->
           {X, Y} = DriverData,
           NewDriver = {Pid, X, Y, M, L},
 
-          % Signal usermanager to spawn driver process
+          % Signal usermanager that a driver was added and signal waiting passengers if any
           usermanager ! {driver_added, Pid},
+          Request = lists:keyfind(is_waiting, 1, TripList),
+          case Request of
+            {_, PPid} ->
+              usermanager ! {driver_available, PPid},
+              NewPassenger = aux:search_user_by_pid(PPid, PassengersList),
+              io:format("cenas passenger: ~p~n", [NewPassenger]),
+              {_, FX, FY, _, _} = NewPassenger,
+              Pid ! {trip_request, NewDriver, NewPassenger, FX, FY},
+              NewTripList = lists:keyreplace(is_waiting, 2, TripList, Request),
+              tripManager([NewDriver | DriversList], PassengersList, NewTripList);
+            false ->
+              true
+          end,
 
           % Loop
           tripManager([NewDriver | DriversList], PassengersList, TripList)
       end;
     {tcp_response, Pid, Data} ->
+      io:format("tcp response data: ~p~n", [Data]),
       DataAux = string:tokens(Data,":"),
+      io:format("tcp response dataaux: ~p~n", [DataAux]),
       case (lists:nth(1, DataAux)) of
         "cancel_trip" ->
           % Get the tuple of this trip

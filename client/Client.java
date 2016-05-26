@@ -220,8 +220,8 @@ public class Client {
       else {
         trans3.receive();
         String result = trans3.getOutput();
-        System.out.println(result);
         while(result == null);
+        System.out.println("recebi " + result);
         if(result.equals("driver_arrived\n")) {
           System.out.println("O condutor chegou ao seu local.\n");
           System.out.println("Cancelar viagem? (cancel_trip)\n");
