@@ -3,16 +3,23 @@ import java.net.*;
 
 public class TransmitterTwo extends Thread {
   Socket socket;
+  String message;
+
   TransmitterTwo(Socket socket) {
     this.socket = socket;
   }
 
+  public String getMessageFromSocket() {
+    return message;
+  }
+
   public void run() {
     try {
-      String message = null;
+      String response = null;
       BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-      while ((message = reader.readLine()) != null) {
-        System.out.println("Client message: "+ message);
+      while ((response = reader.readLine()) != null) {
+        System.out.println("Server response: "+ response);
+        this.message = response;
       }
 
       socket.close();
