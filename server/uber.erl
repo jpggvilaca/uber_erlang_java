@@ -9,8 +9,9 @@ start(Port) ->
   DriversList = [],
   PassengersList = [],
   TripList = [], % Passenger-Driver tuples
+  Timer = {result, value},
   UserManager = spawn(fun() -> usermanager:userManager(UsersList) end),
-  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList, TripList) end),
+  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList, TripList, Timer) end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
   register(tripmanager, TripManager),
@@ -92,11 +93,14 @@ driver(Sock) ->
       Model = M,
       Licence = L,
 
-      % Send message to tell user the Trip info (cost, distance, etc...)
+      % Send message to tell user the Trip info
       PPid ! {driver_info, Distance, Delay, Price, Model, Licence},
 
-      % Send message to passenger warning the arrival (set 2000 to 1000)
-      timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
+      % Send message to passenger warning the arrival
+      Timer = timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
+
+      % Send the timer to the passenger in case he wants to cancel
+      tripmanager ! {cancel_trip_before, Timer},
 
       % Loop
       driver(Sock);
@@ -109,6 +113,8 @@ driver(Sock) ->
       io:format("viagem cancelada"),
       driver(Sock)
   end.
+
+
 
 %% Handles passenger logic
 passenger(Sock) ->
@@ -140,5 +146,4 @@ passenger(Sock) ->
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
       io:format("Viagem chegou ao fim (passageiro)~n")
-      % cancel or enter car
   end.

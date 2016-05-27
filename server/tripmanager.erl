@@ -1,10 +1,12 @@
 -module(tripmanager).
--export([tripManager/3]).
+-export([tripManager/4]).
 
 %% Handles trip requests
 %% Adds passengers and drivers to the lists
-tripManager(DriversList, PassengersList, TripList) ->
+tripManager(DriversList, PassengersList, TripList, Timer) ->
   receive
+    {cancel_trip_before, NewTimer} ->
+      tripManager(DriversList, PassengersList, TripList, NewTimer);
     {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
 
@@ -29,16 +31,15 @@ tripManager(DriversList, PassengersList, TripList) ->
 
               % Send a trip request to the driver with the passenger info
               DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
-              % usermanager ! {driver_available, Pid},
 
               % Add a tuple to the TripList
               NewTripList = [{DriverPid, Pid} | TripList],
 
-              tripManager(DriversList, [Passenger | PassengersList], NewTripList);
+              tripManager(DriversList, [Passenger | PassengersList], NewTripList, Timer);
             true ->
               usermanager ! {no_drivers_available, Pid},
               NewTripList = [{is_waiting, Pid} | TripList],
-              tripManager(DriversList, [Passenger | PassengersList], NewTripList)
+              tripManager(DriversList, [Passenger | PassengersList], NewTripList, Timer)
           end;
         %% Driver
         "can_drive" ->
@@ -62,18 +63,16 @@ tripManager(DriversList, PassengersList, TripList) ->
               {_, FX, FY, _, _} = NewPassenger,
               Pid ! {trip_request, NewDriver, NewPassenger, FX, FY},
               NewTripList = lists:keyreplace(is_waiting, 2, TripList, Request),
-              tripManager([NewDriver | DriversList], PassengersList, NewTripList);
+              tripManager([NewDriver | DriversList], PassengersList, NewTripList, Timer);
             false ->
               true
           end,
 
           % Loop
-          tripManager([NewDriver | DriversList], PassengersList, TripList)
+          tripManager([NewDriver | DriversList], PassengersList, TripList, Timer)
       end;
     {tcp_response, Pid, Data} ->
-      io:format("tcp response data: ~p~n", [Data]),
       DataAux = string:tokens(Data,":"),
-      io:format("tcp response dataaux: ~p~n", [DataAux]),
       case (lists:nth(1, DataAux)) of
         "cancel_trip" ->
           % Get the tuple of this trip
@@ -85,8 +84,15 @@ tripManager(DriversList, PassengersList, TripList) ->
           % Send the message to the driver
           DPid ! {cancel_request, Pid},
 
+          case Timer of
+            {ok, TRef} ->
+              timer:cancel(TRef);
+            {error, _} ->
+              error
+          end,
+
           % Loop
-          tripManager(DriversList, PassengersList, TripList);
+          tripManager(DriversList, PassengersList, TripList, Timer);
         "start_trip" ->
           % Get the tuple of this trip
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
@@ -108,6 +114,6 @@ tripManager(DriversList, PassengersList, TripList) ->
           timer:send_after(Delay*1000, DPid, {trip_ended}),
 
           % Loop
-          tripManager(DriversList, PassengersList, TripList)
+          tripManager(DriversList, PassengersList, TripList, Timer)
       end
   end.

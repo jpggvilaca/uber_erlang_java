@@ -100,9 +100,8 @@ public class ClientThree {
       command = readerInput.substring(0, 3); // Get the parsed string from user input
       aux = readerInput.substring(readerInput.length() - 1, readerInput.length());
 
-      if(step == 3 && socketMessage.equals("driver_arrived")) {
+      if(socketMessage.equals("driver_arrived")) {
         tripMessage();
-        step = 4;
       }
 
       switch(command) {
@@ -115,7 +114,6 @@ public class ClientThree {
         case "1:l":
           if(socketMessage.equals("login_ok")) {
             login(socketMessage);
-            step = 2;
             if(aux.equals("2"))
               isDriver = false;
             preTripMessage(isDriver);
@@ -125,15 +123,21 @@ public class ClientThree {
           }
         break;
         case "2:c":
-          if(step == 2 && socketMessage.equals("driver_added")) {
-            step = 3;
+          if(socketMessage.equals("driver_added")) {
+            System.out.println("Foi adicionado à lista de condutores.");
           }
         break;
         case "2:w":
-          if(step == 2 && socketMessage.equals("passenger_added")) {
+          if(socketMessage.equals("passenger_added")) {
             isDriver = false;
-            step = 3;
+            System.out.println("Foi adicionado à lista de passageiros.");
           }
+        break;
+        case "sta":
+          System.out.println("Viagem começou!");
+        break;
+        case "can":
+          System.out.println("Viagem cancelada!");
         break;
         case "qui":
           System.out.println("Adeus.");
