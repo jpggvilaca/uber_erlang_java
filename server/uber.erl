@@ -113,7 +113,14 @@ passenger(Sock) ->
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
       io:format("Driver info chegou ao passageiro~n"),
-      gen_tcp:send(Sock, "driver_info\n"),
+      Information =
+        integer_to_list(Distance) ++ ":"
+        ++ integer_to_list(Delay) ++ ":"
+        ++ integer_to_list(Price) ++ ":"
+        ++ Model ++ ":"
+        ++ Licence,
+      io:format("info: ~p~n", [Information]),
+      gen_tcp:send(Sock, Information),
       passenger(Sock);
     {driver_available} ->
       io:format("Já há condutores disponíveis~n"),
