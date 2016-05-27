@@ -7,6 +7,9 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
   receive
     {cancel_trip_before, NewTimer} ->
       tripManager(DriversList, PassengersList, TripList, NewTimer);
+    {trip_ended, PPid} ->
+      Driver_Passenger = lists:keyfind(PPid, 2, TripList),
+      tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], Timer);
     {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
 
@@ -59,7 +62,6 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
             {_, PPid} ->
               usermanager ! {driver_available, PPid},
               NewPassenger = aux:search_user_by_pid(PPid, PassengersList),
-              io:format("cenas passenger: ~p~n", [NewPassenger]),
               {_, FX, FY, _, _} = NewPassenger,
               Pid ! {trip_request, NewDriver, NewPassenger, FX, FY},
               NewTripList = lists:keyreplace(is_waiting, 2, TripList, Request),
@@ -81,18 +83,19 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
           % Parse it
           {DPid, _} = Driver_Passenger,
 
-          % Send the message to the driver
-          DPid ! {cancel_request, Pid},
-
           case Timer of
-            {ok, TRef} ->
-              timer:cancel(TRef);
-            {error, _} ->
+            {ok, TRef} -> %% Cancel after
+              timer:cancel(TRef),
+              DPid ! {cancel_request_before_time, Pid},
+              Pid ! {cancel_request_before_time};
+
+            {error, _} -> %% Cancel meanwhile
+              DPid ! {cancel_request, Pid},
               error
           end,
 
           % Loop
-          tripManager(DriversList, PassengersList, TripList, Timer);
+          tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], Timer);
         "start_trip" ->
           % Get the tuple of this trip
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
@@ -110,8 +113,11 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
           Delay = aux:time(Distance),
 
           % Start trip
+          PPid ! {trip_started},
+          DPid ! {trip_started},
           timer:send_after(Delay*1000, PPid, {trip_ended}),
           timer:send_after(Delay*1000, DPid, {trip_ended}),
+          timer:send_after(Delay*1000, tripmanager, {trip_ended, PPid}),
 
           % Loop
           tripManager(DriversList, PassengersList, TripList, Timer)

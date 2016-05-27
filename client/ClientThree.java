@@ -100,9 +100,17 @@ public class ClientThree {
       command = readerInput.substring(0, 3); // Get the parsed string from user input
       aux = readerInput.substring(readerInput.length() - 1, readerInput.length());
 
-      if(socketMessage.equals("driver_arrived")) {
+      if(socketMessage.equals("driver_arrived"))
         tripMessage();
-      }
+
+      if(socketMessage.equals("trip_ended"))
+        System.out.println("Viagem acabou!");
+
+      if(socketMessage.equals("no_drivers_available") && !isDriver)
+        System.out.println("À espera de condutores disponíveis...");
+
+      else if (socketMessage.equals("drivers_available") && !isDriver)
+        System.out.println("Já há condutores disponíveis. Condutor a caminho...");
 
       switch(command) {
         case "1:r":

@@ -99,18 +99,29 @@ driver(Sock) ->
       % Send message to passenger warning the arrival
       Timer = timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
 
-      % Send the timer to the passenger in case he wants to cancel
+      % Send the timer to the tripmanager in case the passenger wants to cancel
       tripmanager ! {cancel_trip_before, Timer},
 
       % Loop
       driver(Sock);
 
+    {trip_started} ->
+      io:format("Viagem começou!~n"),
+      gen_tcp:send(Sock, "trip_started\n"),
+      driver(Sock);
+
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
-      io:format("Viagem chegou ao fim (Condutor)~n");
+      io:format("Viagem chegou ao fim (Condutor)~n"),
+      driver(Sock);
 
     {cancel_request, _} ->
-      io:format("viagem cancelada"),
+      io:format("Viagem cancelada (condutor)"),
+      gen_tcp:send(Sock, "trip_canceled\n"),
+      driver(Sock);
+    {cancel_request_before_time, _} ->
+      io:format("Viagem cancelada antes do tempo (condutor)"),
+      gen_tcp:send(Sock, "cancel_request_before_time\n"),
       driver(Sock)
   end.
 
@@ -139,11 +150,22 @@ passenger(Sock) ->
       passenger(Sock);
     {driver_available} ->
       io:format("Já há condutores disponíveis~n"),
+      gen_tcp:send(Sock, "driver_available\n"),
       passenger(Sock);
     {no_drivers_available} ->
       io:format("Não há condutores disponíveis~n"),
+      gen_tcp:send(Sock, "no_drivers_available\n"),
+      passenger(Sock);
+    {trip_started} ->
+      io:format("Viagem começou!~n"),
+      gen_tcp:send(Sock, "trip_started\n"),
+      passenger(Sock);
+    {cancel_request_before_time} ->
+      io:format("Viagem cancelada antes do tempo (passageiro)~n"),
+      gen_tcp:send(Sock, "cancel_request_before_time\n"),
       passenger(Sock);
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
-      io:format("Viagem chegou ao fim (passageiro)~n")
+      io:format("Viagem chegou ao fim (passageiro)~n"),
+      passenger(Sock)
   end.
