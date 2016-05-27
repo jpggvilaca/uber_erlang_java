@@ -33,6 +33,15 @@ userManager(UsersList) ->
     {login_failed, Pid, UsersList} ->
       Pid ! {login_failed},
       userManager(UsersList);
+    {login_failed_user_already_exists, Pid, UsersList} ->
+      Pid ! {login_failed_user_already_exists},
+      userManager(UsersList);
+    {login_failed_user_doesnt_exist, Pid, UsersList} ->
+      Pid ! {login_failed_user_doesnt_exist},
+      userManager(UsersList);
+    {login_failed_wrong_password, Pid, UsersList} ->
+      Pid ! {login_failed_wrong_password},
+      userManager(UsersList);
 
     {driver_added, Pid} ->
       Pid ! {driver_added},

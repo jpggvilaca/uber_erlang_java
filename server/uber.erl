@@ -44,6 +44,15 @@ user(Sock) ->
     {login_failed} ->
       gen_tcp:send(Sock, "login_failed\n"),
       user(Sock);
+    {login_failed_user_already_exists} ->
+      gen_tcp:send(Sock, "login_failed_user_already_exists\n"),
+      user(Sock);
+    {login_failed_wrong_password} ->
+      gen_tcp:send(Sock, "login_failed_wrong_password\n"),
+      user(Sock);
+    {login_failed_user_doesnt_exist} ->
+      gen_tcp:send(Sock, "login_failed_user_doesnt_exist\n"),
+      user(Sock);
 
     % Trip
     {driver_arrived} ->

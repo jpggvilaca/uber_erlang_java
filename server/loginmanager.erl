@@ -41,7 +41,7 @@ loginManager() ->
                   if
                     (IsLogged == true) ->
                       io:format("Já tem sessão iniciada ~p~n", [User]),
-                      usermanager ! {login_failed, Pid, UsersList},
+                      usermanager ! {login_failed_user_already_exists, Pid, UsersList},
                       loginManager();
                     (Pw == Pass) ->
                       io:format("Login efectuado com sucesso, bemvindo ~p~n", [User]),
@@ -50,12 +50,12 @@ loginManager() ->
                       loginManager();
                     true ->
                       io:format("Login falhou"),
-                      usermanager ! {login_failed, Pid, UsersList},
+                      usermanager ! {login_failed_wrong_password, Pid, UsersList},
                       loginManager()
                   end;
                 false ->
                   io:format("Utilizador não registado. Tente novamente.~n"),
-                  usermanager ! {login_failed, Pid, UsersList},
+                  usermanager ! {login_failed_user_doesnt_exist, Pid, UsersList},
                   loginManager()
               end,
               loginManager();

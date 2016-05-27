@@ -33,6 +33,10 @@ public class ClientThree {
       System.out.println("Password errada! Por favor tente novamente.");
     }
 
+    else if (message.equals("login_failed_user_already_exists")) {
+      System.out.println("Utilizar já tem sessão inicada.");
+    }
+
     else if (message.equals("login_failed_user_doesnt_exist")) {
       System.out.println("Utilizador não existe! Por favor tente novamente.");
     }
@@ -96,6 +100,11 @@ public class ClientThree {
       command = readerInput.substring(0, 3); // Get the parsed string from user input
       aux = readerInput.substring(readerInput.length() - 1, readerInput.length());
 
+      if(step == 3 && socketMessage.equals("driver_arrived")) {
+        tripMessage();
+        step = 4;
+      }
+
       switch(command) {
         case "1:r":
           register(socketMessage);
@@ -104,12 +113,15 @@ public class ClientThree {
           }
         break;
         case "1:l":
-          if(step == 1 && socketMessage.equals("login_ok")) {
+          if(socketMessage.equals("login_ok")) {
             login(socketMessage);
             step = 2;
             if(aux.equals("2"))
               isDriver = false;
             preTripMessage(isDriver);
+          }
+          else {
+            login(socketMessage);
           }
         break;
         case "2:c":
@@ -123,11 +135,12 @@ public class ClientThree {
             step = 3;
           }
         break;
-        case "sta":
-          if(step == 3 && socketMessage.equals("driver_arrived")) {
-            tripMessage();
-            step = 4;
-          }
+        case "qui":
+          System.out.println("Adeus.");
+          System.exit(0);
+        break;
+        default:
+          System.out.println("Por favor insira um comando válido.");
         break;
       }
     }
