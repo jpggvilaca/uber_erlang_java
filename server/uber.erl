@@ -134,7 +134,7 @@ passenger(Sock) ->
       tripmanager ! {tcp_response, self(), Data},
       passenger(Sock);
     {driver_arrived, Driver} ->
-      io:format("Driver ~p  chegou até passageiro!~n", [Driver]),
+      io:format("Driver ~p  chegou até ao passageiro!~n", [Driver]),
       gen_tcp:send(Sock, "driver_arrived\n"),
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
@@ -145,8 +145,7 @@ passenger(Sock) ->
         ++ integer_to_list(Price) ++ ":"
         ++ Model ++ ":"
         ++ Licence,
-      io:format("info: ~p~n", [Information]),
-      gen_tcp:send(Sock, Information),
+      gen_tcp:send(Sock, "Info:" ++ Information),
       passenger(Sock);
     {driver_available} ->
       io:format("Já há condutores disponíveis~n"),
