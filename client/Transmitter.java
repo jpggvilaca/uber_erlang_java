@@ -4,60 +4,28 @@ import java.lang.*;
 import java.io.*;
 import java.net.*;
 
-class Transmitter {
-  BufferedReader input;
-  PrintWriter output;
-  String outputMessage;
+public class Transmitter extends Thread {
+  final Socket socket;
+  final BlockingQueue<String> queue;
 
-  public String getOutput() {
-    return outputMessage;
+  Transmitter(Socket socket, BlockingQueue<String> queue) {
+    this.socket = socket;
+    this.queue = queue;
   }
 
-  Transmitter(BufferedReader in, PrintWriter out) {
-    this.input = in;
-    this.output = out;
-  }
-
-  public void transmit(String message) throws Exception {
-    // Sends to the socket
-    Thread speaker = new Thread(new Runnable() {
-      public void run() {
-        try {
-          System.out.println("Received from socket: " + message);
-          output.print(message);
-          output.flush();
-
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+  public void run() {
+    try {
+      String response = null;
+      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      while ((response = reader.readLine()) != null) {
+        System.out.println("Server response: " + response);
+        // Add the response from the server to the queue
+        queue.add(response);
       }
-    });
 
-    speaker.start();
-    speaker.join();
-  }
-
-  public void receive() throws Exception {
-    // Reads from the socket
-    Thread listener = new Thread(new Runnable() {
-      public void run() {
-        String res;
-
-        try {
-          while((res = input.readLine()) != "\n") {
-            System.out.println("message received: " + res);
-
-            outputMessage = (res);
-
-            break;
-           }
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      };
-    });
-
-    listener.start();
-    listener.join();
+      socket.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
