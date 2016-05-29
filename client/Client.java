@@ -25,17 +25,17 @@ public class Client {
     Socket socket = new Socket(host, port);
 
     // Init Streams
-    BlockingQueue<String> messages = new LinkedBlockingQueue<>();
-    PrintWriter printer = new PrintWriter(socket.getOutputStream(), true);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    Transmitter trans = new Transmitter(socket, messages);
-    Receiver rec = new Receiver(messages);
+    BlockingQueue<String> messages = new LinkedBlockingQueue<>(); // Message Queue
+    PrintWriter printer = new PrintWriter(socket.getOutputStream(), true); // Prints to the socket
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); // Reads from the console
+    Transmitter trans = new Transmitter(socket, messages); // Receives messages from the socket and add them to the queue
+    Receiver rec = new Receiver(messages); // Retrieves messages from the socket
 
     // Init Receiver and Transmitter
     trans.start();
     rec.start();
 
-    // Init menu
+    // Init Menu
     introMessage();
 
     while(true) {

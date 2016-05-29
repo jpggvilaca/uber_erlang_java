@@ -108,51 +108,6 @@ public class Receiver extends Thread {
           System.out.println("Modelo: " + DriverInfo[4] + "\n");
           System.out.println("Matricula: " + DriverInfo[5] + "\n");
         }
-
-        // switch(command) {
-        //   case "1:r":
-        //     if(socketMessage.equals("register_ok"))
-        //       // cleanScreen();
-        //     register(socketMessage);
-        //   break;
-        //   case "1:l":
-        //     if(socketMessage.equals("login_ok")) {
-        //       login(socketMessage);
-        //       if(aux.equals("2"))
-        //         isDriver = false;
-        //       preTripMessage(isDriver);
-        //     }
-        //     else {
-        //       // cleanScreen();
-        //       login(socketMessage);
-        //     }
-        //   break;
-        //   case "2:c":
-        //     if(socketMessage.equals("driver_added")) {
-        //       System.out.println("Foi adicionado à lista de condutores.");
-        //     }
-        //   break;
-        //   case "2:w":
-        //     if(socketMessage.equals("passenger_added")) {
-        //       isDriver = false;
-        //       System.out.println("Foi adicionado à lista de passageiros.");
-        //       tripMessage();
-        //     }
-        //   break;
-        //   case "sta":
-        //     System.out.println("Viagem começou!");
-        //   break;
-        //   case "can":
-        //     System.out.println("Viagem cancelada!");
-        //   break;
-        //   case "qui":
-        //     System.out.println("Adeus.");
-        //     System.exit(0);
-        //   break;
-        //   default:
-        //     System.out.println("Por favor insira um comando válido.");
-        //   break;
-        // }
       }
     } catch (InterruptedException e) {
         e.printStackTrace();
