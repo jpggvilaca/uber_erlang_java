@@ -18,7 +18,6 @@ public class Transmitter extends Thread {
       String response = null;
       BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       while ((response = reader.readLine()) != null) {
-        System.out.println("Server response: " + response);
         // Add the response from the server to the queue
         queue.add(response);
       }

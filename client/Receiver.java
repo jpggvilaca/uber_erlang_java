@@ -6,7 +6,7 @@ import java.net.*;
 
 public class Receiver extends Thread {
   final BlockingQueue<String> queue;
-  boolean isDriver = true;
+  static boolean isDriver = true;
 
   Receiver(BlockingQueue<String> queue) {
     this.queue = queue;
@@ -48,6 +48,7 @@ public class Receiver extends Thread {
     }
 
     else if (message.equals("passenger_added")) {
+      isDriver = false;
       System.out.println("Passageiro adicionado ao uber!");
     }
   }
@@ -75,7 +76,6 @@ public class Receiver extends Thread {
       while (true) {
         // Gets the message from the queue
         message = queue.take();
-        System.out.println("Taken from queue: " + message + "\n");
 
         register(message);
         login(message);
@@ -83,30 +83,41 @@ public class Receiver extends Thread {
 
         if(message.equals("passenger_added")) {
           isDriver = false;
+        }
+
+        if(message.equals("driver_arrived")) {
           tripMessage();
+        }
+
+        if(message.equals("cancel_trip") || message.equals("cancel_trip_before_time")) {
+          System.out.println("Viagem cancelada!");
+          preTripMessage(isDriver);
         }
 
         if(message.equals("login_ok"))
           preTripMessage(isDriver);
 
-        if(message.equals("trip_ended"))
+        if(message.equals("trip_ended")) {
           System.out.println("Viagem acabou!");
+          preTripMessage(isDriver);
+        }
 
         if(message.equals("no_drivers_available"))
           System.out.println("À espera de condutores disponíveis...");
 
-        if (message.equals("drivers_available"))
+        if (message.equals("driver_available"))
           System.out.println("Já há condutores disponíveis. Condutor a caminho...");
 
         if (message.substring(0, 4).equals("Info")) {
           String DriverInfo[] = new String[6];
           DriverInfo = message.split(":");
-          System.out.println("Informação do condutor: \n");
-          System.out.println("Distância a que ele encontra: " + DriverInfo[1] + "\n");
-          System.out.println("Vai demorar a chegar " + DriverInfo[2] + "segundos\n");
-          System.out.println("A viagem vai custar " + DriverInfo[3] + "euros\n");
-          System.out.println("Modelo: " + DriverInfo[4] + "\n");
-          System.out.println("Matricula: " + DriverInfo[5] + "\n");
+          System.out.println("Informação do condutor: ");
+          System.out.println("Distância a que ele encontra: " + DriverInfo[1] + " unidades");
+          System.out.println("Vai demorar a chegar " + DriverInfo[2] + " segundos");
+          System.out.println("A viagem vai custar " + DriverInfo[3] + " euros");
+          System.out.println("Modelo: " + DriverInfo[4]);
+          System.out.println("Matricula: " + DriverInfo[5]);
+          System.out.println("Cancelar viagem: cancel_trip");
         }
       }
     } catch (InterruptedException e) {

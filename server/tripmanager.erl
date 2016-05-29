@@ -59,7 +59,9 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
               NewPassenger = aux:search_user_by_pid(PPid, PassengersList),
               {_, FX, FY, _, _} = NewPassenger,
               Pid ! {trip_request, NewDriver, NewPassenger, FX, FY},
-              NewTripList = lists:keyreplace(is_waiting, 2, TripList, Request),
+              io:format("Triplist: ~p~n", [TripList]),
+              NewTripList = lists:keyreplace(is_waiting, 1, TripList, {Pid, PPid}),
+              io:format("NewTriplist: ~p~n", [NewTripList]),
               tripManager([NewDriver | DriversList], PassengersList, NewTripList, Timer);
             false ->
               true
@@ -81,11 +83,11 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
           case Timer of
             {ok, TRef} -> %% Cancel after
               timer:cancel(TRef),
-              DPid ! {cancel_request_before_time, Pid},
-              Pid ! {cancel_request_before_time};
+              DPid ! {cancel_trip_before_time, Pid},
+              Pid ! {cancel_trip_before_time};
 
             {error, _} -> %% Cancel meanwhile
-              DPid ! {cancel_request, Pid},
+              DPid ! {cancel_trip, Pid},
               error
           end,
 
@@ -99,12 +101,10 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
           {DPid, PPid} = Driver_Passenger,
 
           % Get the Driver and Passenger
-          Driver = lists:keyfind(DPid, 1, DriversList),
           Passenger = lists:keyfind(Pid, 1, PassengersList),
-          {_, DX, DY,_,_} = Driver,
-          {_, FromX, FromY, _, _} = Passenger,
+          {_, FromX, FromY, ToX, ToY} = Passenger,
 
-          Distance = aux:distance(DX, DY, FromX, FromY),
+          Distance = aux:distance(FromX, FromY, ToX, ToY),
           Delay = aux:time(Distance),
 
           % Start trip

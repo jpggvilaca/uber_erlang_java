@@ -100,22 +100,18 @@ driver(Sock) ->
       driver(Sock);
 
     {trip_started} ->
-      io:format("Viagem começou!~n"),
       gen_tcp:send(Sock, "trip_started\n"),
       driver(Sock);
 
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
-      io:format("Viagem chegou ao fim (Condutor)~n"),
-      driver(Sock);
+      user(Sock);
 
-    {cancel_request, _} ->
-      io:format("Viagem cancelada (condutor)"),
+    {cancel_trip, _} ->
       gen_tcp:send(Sock, "trip_canceled\n"),
       driver(Sock);
-    {cancel_request_before_time, _} ->
-      io:format("Viagem cancelada antes do tempo (condutor)"),
-      gen_tcp:send(Sock, "cancel_request_before_time\n"),
+    {cancel_trip_before_time, _} ->
+      gen_tcp:send(Sock, "cancel_trip_before_time\n"),
       driver(Sock)
   end.
 
@@ -127,12 +123,9 @@ passenger(Sock) ->
     {tcp, _, Data} ->
       tripmanager ! {tcp_response, self(), Data},
       passenger(Sock);
-    {driver_arrived, Driver} ->
-      io:format("Driver ~p chegou até ao passageiro!~n", [Driver]),
-      gen_tcp:send(Sock, "driver_arrived\n"),
+    {driver_arrived, _} ->
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
-      io:format("Driver info chegou ao passageiro~n"),
       Information =
         integer_to_list(Distance) ++ ":"
         ++ integer_to_list(Delay) ++ ":"
@@ -142,23 +135,18 @@ passenger(Sock) ->
       gen_tcp:send(Sock, "Info:" ++ Information ++ "\n"),
       passenger(Sock);
     {driver_available} ->
-      io:format("Já há condutores disponíveis~n"),
       gen_tcp:send(Sock, "driver_available\n"),
       passenger(Sock);
     {no_drivers_available} ->
-      io:format("Não há condutores disponíveis~n"),
       gen_tcp:send(Sock, "no_drivers_available\n"),
       passenger(Sock);
     {trip_started} ->
-      io:format("Viagem começou!~n"),
       gen_tcp:send(Sock, "trip_started\n"),
       passenger(Sock);
-    {cancel_request_before_time} ->
-      io:format("Viagem cancelada antes do tempo (passageiro)~n"),
-      gen_tcp:send(Sock, "cancel_request_before_time\n"),
-      passenger(Sock);
+    {cancel_trip_before_time} ->
+      gen_tcp:send(Sock, "cancel_trip_before_time\n"),
+      user(Sock);
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
-      io:format("Viagem chegou ao fim (passageiro)~n"),
-      passenger(Sock)
+      user(Sock)
   end.
