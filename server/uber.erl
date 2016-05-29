@@ -25,7 +25,7 @@ acceptor(LSock) ->
   usermanager ! {enter, self()},
   user(Sock).
 
-%% User instance, direct connection with the client
+%% User instance, direct connection with the socket (client)
 user(Sock) ->
   receive % From tcp
     {tcp, _, Data} ->
@@ -56,17 +56,11 @@ user(Sock) ->
       user(Sock);
 
     % Trip
-    {driver_arrived} ->
-      gen_tcp:send(Sock, "driver_arrived\n"),
-      user(Sock);
     {driver_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
       driver(Sock);
     {passenger_added} ->
       gen_tcp:send(Sock, "passenger_added\n"),
-      passenger(Sock);
-    {driver_available} ->
-      gen_tcp:send(Sock, "driver_available\n"),
       passenger(Sock);
 
     % Error/Disconnect
@@ -100,7 +94,7 @@ driver(Sock) ->
       Timer = timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
 
       % Send the timer to the tripmanager in case the passenger wants to cancel
-      tripmanager ! {cancel_trip_before, Timer},
+      tripmanager ! {cancel_trip_before_time, Timer},
 
       % Loop
       driver(Sock);
@@ -134,7 +128,7 @@ passenger(Sock) ->
       tripmanager ! {tcp_response, self(), Data},
       passenger(Sock);
     {driver_arrived, Driver} ->
-      io:format("Driver ~p  chegou até ao passageiro!~n", [Driver]),
+      io:format("Driver ~p chegou até ao passageiro!~n", [Driver]),
       gen_tcp:send(Sock, "driver_arrived\n"),
       passenger(Sock);
     {driver_info, Distance, Delay, Price, Model, Licence} ->
@@ -145,7 +139,7 @@ passenger(Sock) ->
         ++ integer_to_list(Price) ++ ":"
         ++ Model ++ ":"
         ++ Licence,
-      gen_tcp:send(Sock, "Info:" ++ Information),
+      gen_tcp:send(Sock, "Info:" ++ Information ++ "\n"),
       passenger(Sock);
     {driver_available} ->
       io:format("Já há condutores disponíveis~n"),

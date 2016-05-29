@@ -21,6 +21,7 @@ userManager(UsersList) ->
       end,
       userManager(UsersList);
 
+    % Register / Login
     {register_ok, Pid, NewUsersList} ->
       Pid ! {register_ok},
       userManager(NewUsersList);
@@ -43,11 +44,10 @@ userManager(UsersList) ->
       Pid ! {login_failed_wrong_password},
       userManager(UsersList);
 
+
+    % Pre-Trip
     {driver_added, Pid} ->
       Pid ! {driver_added},
-      userManager(UsersList);
-    {driver_info, Pid} ->
-      Pid ! {driver_info},
       userManager(UsersList);
     {passenger_added, Pid} ->
       Pid ! {passenger_added},
@@ -58,6 +58,8 @@ userManager(UsersList) ->
     {no_drivers_available, Pid} ->
       Pid ! {no_drivers_available},
       userManager(UsersList);
+
+    % Trip
 
     {leave, Pid} ->
       User = aux:search_user_by_pid(Pid, UsersList),

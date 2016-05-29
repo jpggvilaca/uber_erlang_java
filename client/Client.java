@@ -14,68 +14,7 @@ public class Client {
     System.out.println("Sair - quit");
   }
 
-  public static void register(String message) {
-    if (message.equals("register_ok")) {
-      System.out.println("Registo efectuado com sucesso!\n");
-      System.out.println("Por favor faça login.");
-    }
-
-    else if (message.equals("register_failed")) {
-      System.out.println("Registo falhou! Por favor tente novamente.");
-    }
-  }
-
-  public static void login(String message) {
-    if (message.equals("login_ok")) {
-      System.out.println("Login efectuado com sucesso!");
-    }
-
-    else if (message.equals("login_failed_wrong_password")) {
-      System.out.println("Password errada! Por favor tente novamente.");
-    }
-
-    else if (message.equals("login_failed_user_already_exists")) {
-      System.out.println("Utilizar já tem sessão inicada.");
-    }
-
-    else if (message.equals("login_failed_user_doesnt_exist")) {
-      System.out.println("Utilizador não existe! Por favor tente novamente.");
-    }
-  }
-
-  public static void added(String message) {
-    if (message.equals("driver_added")) {
-      System.out.println("Condutor adicionado ao uber!");
-    }
-
-    else if (message.equals("passenger_added")) {
-      System.out.println("Passageiro adicionado ao uber!");
-    }
-  }
-
-  public static void preTripMessage(boolean isDriver) {
-    if(isDriver)
-      System.out.println("Disponível para conduzir: 2:can_drive:x:y");
-    else
-      System.out.println("Pedido de viagem: 2:want_trip:x1:y1:x2:y2");
-  }
-
-  public static void tripMessage() {
-    System.out.println("Começar viagem: start_trip");
-    System.out.println("Cancelar viagem: cancel_trip");
-  }
-
-  public static void cleanScreen() {
-    for (int i = 0; i < 50; ++i) System.out.println();
-  }
-
   public static void main(String[] args) throws Exception {
-    // Aux variables
-    String socketMessage;
-    String command;
-    String aux; // To check if it's driver or passenger
-    boolean isDriver = true;
-
     // Init connection
     if (args.length<2)
       System.exit(1);
@@ -90,7 +29,11 @@ public class Client {
     PrintWriter printer = new PrintWriter(socket.getOutputStream(), true);
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     Transmitter trans = new Transmitter(socket, messages);
-    trans.start(); // Gets the message from socket
+    Receiver rec = new Receiver(messages);
+
+    // Init Receiver and Transmitter
+    trans.start();
+    rec.start();
 
     // Init menu
     introMessage();
@@ -99,66 +42,6 @@ public class Client {
       String readerInput = reader.readLine(); // Read from console
       printer.print(readerInput.trim()); // Sends it to the socket
       printer.flush();
-
-      socketMessage = messages.take(); // Get the server response
-      command = readerInput.substring(0, 3); // Get the parsed string from user input
-      aux = readerInput.substring(readerInput.length() - 1, readerInput.length());
-
-      System.out.println("a socket message é: " + socketMessage);
-
-      if(socketMessage.equals("trip_ended"))
-        System.out.println("Viagem acabou!");
-
-      else if(socketMessage.equals("no_drivers_available") && !isDriver)
-        System.out.println("À espera de condutores disponíveis...");
-
-      else if (socketMessage.equals("drivers_available") && !isDriver)
-        System.out.println("Já há condutores disponíveis. Condutor a caminho...");
-
-      switch(command) {
-        case "1:r":
-          if(socketMessage.equals("register_ok"))
-            // cleanScreen();
-          register(socketMessage);
-        break;
-        case "1:l":
-          if(socketMessage.equals("login_ok")) {
-            login(socketMessage);
-            if(aux.equals("2"))
-              isDriver = false;
-            preTripMessage(isDriver);
-          }
-          else {
-            // cleanScreen();
-            login(socketMessage);
-          }
-        break;
-        case "2:c":
-          if(socketMessage.equals("driver_added")) {
-            System.out.println("Foi adicionado à lista de condutores.");
-          }
-        break;
-        case "2:w":
-          if(socketMessage.equals("passenger_added")) {
-            isDriver = false;
-            System.out.println("Foi adicionado à lista de passageiros.");
-            tripMessage();
-          }
-        break;
-        case "sta":
-          System.out.println("Viagem começou!");
-        break;
-        case "can":
-          System.out.println("Viagem cancelada!");
-        break;
-        case "qui":
-          System.out.println("Adeus.");
-          System.exit(0);
-        break;
-        default:
-          System.out.println("Por favor insira um comando válido.");
-        break;
-      }
     }
   }
 }

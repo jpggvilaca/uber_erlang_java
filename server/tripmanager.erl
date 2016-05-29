@@ -5,11 +5,6 @@
 %% Adds passengers and drivers to the lists
 tripManager(DriversList, PassengersList, TripList, Timer) ->
   receive
-    {cancel_trip_before, NewTimer} ->
-      tripManager(DriversList, PassengersList, TripList, NewTimer);
-    {trip_ended, PPid} ->
-      Driver_Passenger = lists:keyfind(PPid, 2, TripList),
-      tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], Timer);
     {request, Pid, Data, UsersList} ->
       DataAux = string:tokens(Data,":"),
 
@@ -121,5 +116,12 @@ tripManager(DriversList, PassengersList, TripList, Timer) ->
 
           % Loop
           tripManager(DriversList, PassengersList, TripList, Timer)
-      end
+      end;
+
+    {cancel_trip_before_time, NewTimer} ->
+      tripManager(DriversList, PassengersList, TripList, NewTimer);
+
+    {trip_ended, PPid} ->
+      Driver_Passenger = lists:keyfind(PPid, 2, TripList),
+      tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], Timer)
   end.
