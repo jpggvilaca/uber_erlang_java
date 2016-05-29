@@ -8,6 +8,12 @@ loginManager() ->
       DataAux = string:tokens(Data,":"),
       case lists:nth(2, DataAux) of
         "reg" -> %% REGISTO
+          case lists:nth(5, DataAux) of
+            "1" ->
+              usermanager ! {user_is_driver, Pid};
+            "2" ->
+              usermanager ! {user_is_passenger, Pid}
+          end,
           case lists:keymember(lists:nth(3, DataAux), 1, UsersList) of
             true ->
               usermanager ! {register_failed, Pid, UsersList},

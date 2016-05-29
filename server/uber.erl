@@ -9,9 +9,9 @@ start(Port) ->
   DriversList = [],
   PassengersList = [],
   TripList = [], % Passenger-Driver tuples
-  Timer = {result, value},
+  TimerList = [],
   UserManager = spawn(fun() -> usermanager:userManager(UsersList) end),
-  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList, TripList, Timer) end),
+  TripManager = spawn(fun() -> tripmanager:tripManager(DriversList, PassengersList, TripList, TimerList) end),
   register(usermanager, UserManager),
   register(loginmanager, spawn(fun() -> loginmanager:loginManager() end)),
   register(tripmanager, TripManager),
@@ -55,6 +55,14 @@ user(Sock) ->
       gen_tcp:send(Sock, "login_failed_user_doesnt_exist\n"),
       user(Sock);
 
+    % Check type of user
+    {user_is_driver} ->
+      gen_tcp:send(Sock, "user_is_driver\n"),
+      user(Sock);
+    {user_is_passenger} ->
+      gen_tcp:send(Sock, "user_is_passenger\n"),
+      user(Sock);
+
     % Trip
     {driver_added} ->
       gen_tcp:send(Sock, "driver_added\n"),
@@ -93,8 +101,9 @@ driver(Sock) ->
       % Send message to passenger warning the arrival
       Timer = timer:send_after(Delay*1000, PPid, {driver_arrived, Driver}),
 
-      % Send the timer to the tripmanager in case the passenger wants to cancel
-      tripmanager ! {cancel_trip_before_time, Timer},
+      % Send the state to the tripmanager in case the passenger wants to cancel
+      MomentOfRequest = now(),
+      tripmanager ! {trip_state, Timer, MomentOfRequest, self(), Delay},
 
       % Loop
       driver(Sock);
@@ -110,7 +119,7 @@ driver(Sock) ->
     {cancel_trip, _} ->
       gen_tcp:send(Sock, "trip_canceled\n"),
       driver(Sock);
-    {cancel_trip_before_time, _} ->
+    {cancel_trip_before_time} ->
       gen_tcp:send(Sock, "cancel_trip_before_time\n"),
       driver(Sock)
   end.
@@ -143,9 +152,9 @@ passenger(Sock) ->
     {trip_started} ->
       gen_tcp:send(Sock, "trip_started\n"),
       passenger(Sock);
-    {cancel_trip_before_time} ->
-      gen_tcp:send(Sock, "cancel_trip_before_time\n"),
-      user(Sock);
+    % {cancel_trip_before_time} ->
+    %   gen_tcp:send(Sock, "cancel_trip_before_time\n"),
+    %   user(Sock);
     {trip_ended} ->
       gen_tcp:send(Sock, "trip_ended\n"),
       user(Sock)

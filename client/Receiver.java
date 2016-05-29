@@ -81,7 +81,7 @@ public class Receiver extends Thread {
         login(message);
         added(message);
 
-        if(message.equals("passenger_added")) {
+        if(message.equals("user_is_passenger")) {
           isDriver = false;
         }
 

@@ -44,6 +44,13 @@ userManager(UsersList) ->
       Pid ! {login_failed_wrong_password},
       userManager(UsersList);
 
+    % Type of user
+    {user_is_driver, Pid} ->
+      Pid ! {user_is_driver},
+      userManager(UsersList);
+    {user_is_passenger, Pid} ->
+      Pid ! {user_is_passenger},
+      userManager(UsersList);
 
     % Pre-Trip
     {driver_added, Pid} ->
