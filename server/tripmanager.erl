@@ -9,7 +9,7 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
       DataAux = string:tokens(Data,":"),
 
       case (lists:nth(2, DataAux)) of
-        %% Passenger
+        %% Add passenger to list, remove driver from list, add tuple to triplist
         "want_trip" ->
           % Get this passenger data
           PassengerData = aux:formatPassengerTrip(DataAux),
@@ -30,16 +30,14 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
               % Send a trip request to the driver with the passenger info
               DriverPid ! {trip_request, Driver, Passenger, FromX, FromY},
 
-              % Add a tuple to the TripList
-              NewTripList = [{DriverPid, Pid} | TripList],
-
-              tripManager(DriversList, [Passenger | PassengersList], NewTripList, TimerList);
+              % Driver deleted frm the driverslist array and added to the triplist
+              tripManager(DriversList -- [Driver], [Passenger | PassengersList], [{DriverPid, Pid} | TripList], TimerList);
             true ->
               usermanager ! {no_drivers_available, Pid},
               NewTripList = [{is_waiting, Pid} | TripList],
               tripManager(DriversList, [Passenger | PassengersList], NewTripList, TimerList)
           end;
-        %% Driver
+        %% Add Driver to DriverList,
         "can_drive" ->
           % Get driver location (x,y), model and licence
           DriverData = aux:formatDriverTrip(DataAux),
@@ -60,7 +58,7 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
               {_, FX, FY, _, _} = NewPassenger,
               Pid ! {trip_request, NewDriver, NewPassenger, FX, FY},
               NewTripList = lists:keyreplace(is_waiting, 1, TripList, {Pid, PPid}),
-              tripManager([NewDriver | DriversList], PassengersList, NewTripList, TimerList);
+              tripManager(DriversList, PassengersList, NewTripList, TimerList);
             false ->
               true
           end,
@@ -71,6 +69,7 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
     {tcp_response, Pid, Data} ->
       DataAux = string:tokens(Data,":"),
       case (lists:nth(1, DataAux)) of
+        %% Remove tuple from TripList, Add that driver to driverslist
         "cancel_trip" ->
           % Get the tuple of this trip
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
@@ -78,13 +77,20 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
           % Parse it
           {DPid, _} = Driver_Passenger,
 
+          % Get the Driver
+          ActualDriver = aux:search_user_by_pid(DPid, DriversList),
+
           % Check trip state
           TripState = lists:keyfind(DPid, 2, TimerList),
           case TripState of
-            {ActualTimer, DriverPid, PastMoment, Delay} ->
+            {ActualTimer, _, PastMoment, Delay} ->
               % Check if 1 minute has passed
               Now = now(),
-              TimeElapsed = timer:now_diff(PastMoment, Now) / 100000,
+              io:format("Now = ~p~n", [Now]),
+              io:format("PastMoment = ~p~n", [PastMoment]),
+              TimeElapsed = timer:now_diff(Now, PastMoment) / 1000000,
+              io:format("TimeElapsed = ~p~n", [TimeElapsed]),
+              io:format("Delay = ~p~n", [Delay]),
               if
                 TimeElapsed > 60 ->
                   HasToPay = true,
@@ -96,20 +102,27 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
               % Check if drivertimer is still going
               if
                 TimeElapsed < Delay ->
+                  io:format("O TimeElapsed é menor que o Delay~n"),
                   {ok, TRef} = ActualTimer,
                     timer:cancel(TRef),
+                    io:format("Cancelei o timer"),
                     DPid ! {cancel_trip_before_time, Pid},
-                    Pid ! {cancel_trip_before_time};
+                    Pid ! {cancel_trip_before_time, HasToPay},
+                    tripmanager ! {trip_canceled_before_time},
+                    tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState]);
                   true ->
-                    DPid ! {cancel_trip, Pid}
-              end;
+                    io:format("Não Cancelei o timer~n"),
+                    DPid ! {cancel_trip, Pid},
+                    Pid ! {cancel_trip, HasToPay},
+                    tripManager(DriversList -- [ActualDriver], PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState])
+              end,
+              tripManager(DriversList -- [ActualDriver], PassengersList, TripList -- [Driver_Passenger], TimerList);
             false ->
               io:format("TripState not found!"),
-              tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState])
-          end,
+              tripManager(DriversList, PassengersList, TripList, TimerList)
+          end;
 
-          % Loop
-          tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState]);
+        %% At the end of the trip remove tuple from triplist and add driver to driverslist
         "start_trip" ->
           % Get the tuple of this trip
           Driver_Passenger = lists:keyfind(Pid, 2, TripList),
@@ -138,7 +151,21 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
     {trip_state, NewTimer, MomentOfRequest, DriverPid, Delay} ->
       tripManager(DriversList, PassengersList, TripList, [{NewTimer, DriverPid, MomentOfRequest, Delay} | TimerList]);
 
+    {trip_canceled_before_time} ->
+      io:format("TripManager recebeu trip_canceled_before_time~n"),
+      io:format("VIAGEM ACABOU ANTES DO TEMPO, DADOS:~n"),
+      io:format("DriversList: ~p~n", [DriversList]),
+      io:format("PassengersList: ~p~n", [PassengersList]),
+      io:format("TripList: ~p~n", [TripList]),
+      io:format("TimerList: ~p~n", [TimerList]),
+      tripManager(DriversList, PassengersList, TripList, TimerList);
+
     {trip_ended, PPid} ->
+      io:format("VIAGEM ACABOU NORMALMENTE, DADOS:~n"),
+      io:format("DriversList: ~p~n", [DriversList]),
+      io:format("PassengersList: ~p~n", [PassengersList]),
+      io:format("TripList: ~p~n", [TripList]),
+      io:format("TimerList: ~p~n", [TimerList]),
       Driver_Passenger = lists:keyfind(PPid, 2, TripList),
       tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList)
   end.

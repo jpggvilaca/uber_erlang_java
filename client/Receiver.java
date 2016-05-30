@@ -61,6 +61,7 @@ public class Receiver extends Thread {
   }
 
   public static void tripMessage() {
+    System.out.println("Condutor chegou!");
     System.out.println("Começar viagem: start_trip");
     System.out.println("Cancelar viagem: cancel_trip");
   }
@@ -81,6 +82,9 @@ public class Receiver extends Thread {
         login(message);
         added(message);
 
+        if(message.equals("login_ok"))
+          preTripMessage(isDriver);
+
         if(message.equals("user_is_passenger")) {
           isDriver = false;
         }
@@ -89,17 +93,8 @@ public class Receiver extends Thread {
           tripMessage();
         }
 
-        if(message.equals("cancel_trip") || message.equals("cancel_trip_before_time")) {
-          System.out.println("Viagem cancelada!");
-          preTripMessage(isDriver);
-        }
-
-        if(message.equals("login_ok"))
-          preTripMessage(isDriver);
-
-        if(message.equals("trip_ended")) {
-          System.out.println("Viagem acabou!");
-          preTripMessage(isDriver);
+        if(message.equals("received_trip_request")) {
+          System.out.println("Recebido pedido de viagem, a caminho do passageiro...");
         }
 
         if(message.equals("no_drivers_available"))
@@ -108,15 +103,31 @@ public class Receiver extends Thread {
         if (message.equals("driver_available"))
           System.out.println("Já há condutores disponíveis. Condutor a caminho...");
 
+        if(message.equals("cancel_trip") || message.equals("cancel_trip_before_time")) {
+          System.out.println("Viagem cancelada!");
+          if(!isDriver) {
+            System.out.println("Pedido de viagem: 2:want_trip:x1:y1:x2:y2");
+          }
+        }
+
+        if(message.equals("trip_ended")) {
+          System.out.println("Viagem acabou!");
+          preTripMessage(isDriver);
+        }
+
+        if(message.equals("trip_started")) {
+          System.out.println("Viagem começou!");
+        }
+
         if (message.substring(0, 4).equals("Info")) {
           String DriverInfo[] = new String[6];
           DriverInfo = message.split(":");
-          System.out.println("Informação do condutor: ");
+          System.out.println("\nInformação do condutor: ");
           System.out.println("Distância a que ele encontra: " + DriverInfo[1] + " unidades");
           System.out.println("Vai demorar a chegar " + DriverInfo[2] + " segundos");
           System.out.println("A viagem vai custar " + DriverInfo[3] + " euros");
           System.out.println("Modelo: " + DriverInfo[4]);
-          System.out.println("Matricula: " + DriverInfo[5]);
+          System.out.println("Matricula: " + DriverInfo[5] + "\n");
           System.out.println("Cancelar viagem: cancel_trip");
         }
       }

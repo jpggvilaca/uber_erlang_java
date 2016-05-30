@@ -1,5 +1,5 @@
 -module(aux).
--define(SPEED, 1). %% 1 unit per minute
+-define(SPEED, 0.2). %% 1 unit per minute
 -define(PRICE_PER_BLOCK, 5).
 -compile(export_all).
 
