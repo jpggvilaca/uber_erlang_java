@@ -133,11 +133,11 @@ driver(Sock) ->
     {cancel_trip, _} ->
       io:format("Enviado trip_ended para o driver~n"),
       gen_tcp:send(Sock, "trip_canceled\n"),
-      driver(Sock);
+      user(Sock);
     {cancel_trip_before_time, _} ->
       io:format("Enviado cancel_trip_before_time para o driver~n"),
       gen_tcp:send(Sock, "cancel_trip_before_time\n"),
-      driver(Sock)
+      user(Sock)
   end.
 
 
@@ -178,7 +178,9 @@ passenger(Sock) ->
       io:format("Enviado cancel_trip para o passageiro~n"),
       if
         HasToPay ->
-          gen_tcp:send(Sock, "passenger_has_to_pay\n")
+          gen_tcp:send(Sock, "passenger_has_to_pay\n");
+        true ->
+          ok
       end,
       gen_tcp:send(Sock, "cancel_trip\n"),
       user(Sock);
@@ -186,7 +188,9 @@ passenger(Sock) ->
       io:format("Enviado cancel_trip_before_time para o passageiro~n"),
       if
         HasToPay ->
-          gen_tcp:send(Sock, "passenger_has_to_pay\n")
+          gen_tcp:send(Sock, "passenger_has_to_pay\n");
+        true ->
+          ok
       end,
       gen_tcp:send(Sock, "cancel_trip_before_time\n"),
       user(Sock);

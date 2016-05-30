@@ -105,9 +105,7 @@ public class Receiver extends Thread {
 
         if(message.equals("cancel_trip") || message.equals("cancel_trip_before_time")) {
           System.out.println("Viagem cancelada!");
-          if(!isDriver) {
-            System.out.println("Pedido de viagem: 2:want_trip:x1:y1:x2:y2");
-          }
+          preTripMessage(isDriver);
         }
 
         if(message.equals("trip_ended")) {

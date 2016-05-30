@@ -1,33 +1,33 @@
 Client:
 
 // Register/Login
-register:username:password:type -> registers new user
-login:username:password:type -> login existing user
+1:reg:username:password:type:model:licence -> registers new user (driver)
+1:reg:username:password:type -> registers new user (passenger)
+1:log:username:password:type -> login existing user
 
 // Driver
-model:licence -> sets the driver car properties
-x:y -> sets the driver availability to drive and his new home to (x,y)
+2:can_drive:x:y -> Adds user to the driverslist and sets his home to (x,y)
 
 // Passenger
-want_trip -> starts a new trip
-x1:y1:x2:y2 -> sets the trip request locations
+2:want_trip:x1:y1:x2:y2 -> requests trip
 cancel_trip -> cancels the current trip
-enter_car -> starts the current trip
+start_trip -> starts the current trip
 
 ---
 
 Server: receives - sends
 --> 1 goes to login manager, 2 goes to tripmanager
 1:reg:username:password:type - register_ok/register_failed
-1:log:username:password:type - login_ok/login_failed
-2:can_drive - driver_added/driver_error
-2:want_trip - trip_request/trip_started/trip_error
-2:cancel_trip - trip_cancel_ok/trip_cancel_error
+1:log:username:password:type - login_ok/login_failed/login_failed_user_already_exists/login_failed_wrong_password/login_failed_user_doesnt_exist
+2:can_drive:x:y - driver_added
+2:want_trip:x1:y1:x2:y2 - trip_request/trip_started
+cancel_trip - cancel_trip_before_time/cancel_trip
+start_trip - trip_started/trip_ended
 
 ---
 
 Modules:
-uber: main module, starts the server, spawns acceptor/user
+uber: main module, starts the server, spawns acceptor/user and user spawns driver/passenger
 usermanager: handles tcp incoming data, works as a bridge between user and loginmanager
 loginmanager: handles login logic
 tripmanager: handles trip logic
@@ -40,11 +40,11 @@ Driver Flow:
 2) Login
 3) Set availability to drive (can_drive, x:y)
 4) Go back home or stay in the place he arrived after the trip
-5) Logout
+5) Quit or set availability to drive again
 
 Passenger Flow:
 1) Register (username,password,type)
 2) Login
 3) Request trip (from, to)
 4) Enter car or cancel trip
-5) Logout or request another trip
+5) Quit or request another trip

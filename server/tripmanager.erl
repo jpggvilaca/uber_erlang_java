@@ -86,11 +86,7 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
             {ActualTimer, _, PastMoment, Delay} ->
               % Check if 1 minute has passed
               Now = now(),
-              io:format("Now = ~p~n", [Now]),
-              io:format("PastMoment = ~p~n", [PastMoment]),
               TimeElapsed = timer:now_diff(Now, PastMoment) / 1000000,
-              io:format("TimeElapsed = ~p~n", [TimeElapsed]),
-              io:format("Delay = ~p~n", [Delay]),
               if
                 TimeElapsed > 60 ->
                   HasToPay = true,
@@ -102,13 +98,11 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
               % Check if drivertimer is still going
               if
                 TimeElapsed < Delay ->
-                  io:format("O TimeElapsed é menor que o Delay~n"),
                   {ok, TRef} = ActualTimer,
                     timer:cancel(TRef),
-                    io:format("Cancelei o timer"),
                     DPid ! {cancel_trip_before_time, Pid},
                     Pid ! {cancel_trip_before_time, HasToPay},
-                    tripmanager ! {trip_canceled_before_time},
+                    tripmanager ! {trip_canceled_before_time, DPid},
                     tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState]);
                   true ->
                     io:format("Não Cancelei o timer~n"),
@@ -142,7 +136,7 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
           DPid ! {trip_started},
           timer:send_after(Delay*1000, PPid, {trip_ended}),
           timer:send_after(Delay*1000, DPid, {trip_ended}),
-          timer:send_after(Delay*1000, tripmanager, {trip_ended, PPid}),
+          timer:send_after(Delay*1000, tripmanager, {trip_ended, DPid}),
 
           % Loop
           tripManager(DriversList, PassengersList, TripList, TimerList)
@@ -160,12 +154,12 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
       io:format("TimerList: ~p~n", [TimerList]),
       tripManager(DriversList, PassengersList, TripList, TimerList);
 
-    {trip_ended, PPid} ->
+    {trip_ended, DPid} ->
       io:format("VIAGEM ACABOU NORMALMENTE, DADOS:~n"),
       io:format("DriversList: ~p~n", [DriversList]),
       io:format("PassengersList: ~p~n", [PassengersList]),
       io:format("TripList: ~p~n", [TripList]),
       io:format("TimerList: ~p~n", [TimerList]),
-      Driver_Passenger = lists:keyfind(PPid, 2, TripList),
+      Driver_Passenger = lists:keyfind(DPid, 1, TripList),
       tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList)
   end.
