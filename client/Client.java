@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.*;
 import java.lang.*;
 import java.io.*;
 import java.net.*;
@@ -35,13 +36,23 @@ public class Client {
     trans.start();
     rec.start();
 
-    // Init Menu
+    // Init Menu and regexes
     introMessage();
+
+    String patternOne = "[1-2]:[a-z]+:[a-z]+:[a-z]+:[1-2](:[a-z]*:[a-z]*)?";
+    String patternTwo = "[1-2]:[a-z_]+:[0-9]+:[0-9]+";
 
     while(true) {
       String readerInput = reader.readLine(); // Read from console
-      printer.print(readerInput.trim()); // Sends it to the socket
-      printer.flush();
+
+      if(readerInput.matches(patternOne) || readerInput.matches(patternTwo)) {
+        printer.print(readerInput.trim()); // Sends it to the socket
+        printer.flush();
+      }
+
+      else {
+        System.out.println("Por favor introduza um comando válido.\n");
+      }
     }
   }
 }
