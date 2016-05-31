@@ -40,7 +40,7 @@ public class Client {
     introMessage();
 
     String patternOne = "[1-2]:[a-z]+:[a-z]+:[a-z]+:[1-2](:[a-z]*:[a-z]*)?";
-    String patternTwo = "[1-2]:[a-z_]+:[0-9]+:[0-9]+";
+    String patternTwo = "[1-2]:[a-z_]+:[0-9]+:[0-9]+(:[0-9]?:[0-9])?";
 
     while(true) {
       String readerInput = reader.readLine(); // Read from console
