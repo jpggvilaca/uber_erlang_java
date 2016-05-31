@@ -80,6 +80,9 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
           % Get the Driver
           ActualDriver = aux:search_user_by_pid(DPid, DriversList),
 
+          % Get the Passenger
+          ActualPassenger = aux:search_user_by_pid(Pid, PassengersList),
+
           % Check trip state
           TripState = lists:keyfind(DPid, 2, TimerList),
           case TripState of
@@ -102,15 +105,15 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
                     timer:cancel(TRef),
                     DPid ! {cancel_trip_before_time, Pid},
                     Pid ! {cancel_trip_before_time, HasToPay},
-                    tripmanager ! {trip_canceled_before_time, DPid},
-                    tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState]);
+                    tripmanager ! {trip_canceled_before_time},
+                    tripManager(DriversList -- [ActualDriver], PassengersList -- [ActualPassenger], TripList -- [Driver_Passenger], TimerList -- [TripState]);
                   true ->
-                    io:format("Não Cancelei o timer~n"),
                     DPid ! {cancel_trip, Pid},
                     Pid ! {cancel_trip, HasToPay},
-                    tripManager(DriversList -- [ActualDriver], PassengersList, TripList -- [Driver_Passenger], TimerList -- [TripState])
+                    tripmanager ! {trip_canceled_normally},
+                    tripManager(DriversList -- [ActualDriver], PassengersList -- [ActualPassenger], TripList -- [Driver_Passenger], TimerList -- [TripState])
               end,
-              tripManager(DriversList -- [ActualDriver], PassengersList, TripList -- [Driver_Passenger], TimerList);
+              tripManager(DriversList -- [ActualDriver], PassengersList -- [ActualPassenger], TripList -- [Driver_Passenger], TimerList);
             false ->
               io:format("TripState not found!"),
               tripManager(DriversList, PassengersList, TripList, TimerList)
@@ -146,20 +149,21 @@ tripManager(DriversList, PassengersList, TripList, TimerList) ->
       tripManager(DriversList, PassengersList, TripList, [{NewTimer, DriverPid, MomentOfRequest, Delay} | TimerList]);
 
     {trip_canceled_before_time} ->
-      io:format("TripManager recebeu trip_canceled_before_time~n"),
-      io:format("VIAGEM ACABOU ANTES DO TEMPO, DADOS:~n"),
+      io:format("VIAGEM CANCELADA ANTES DO TEMPO, DADOS:~n"),
       io:format("DriversList: ~p~n", [DriversList]),
       io:format("PassengersList: ~p~n", [PassengersList]),
-      io:format("TripList: ~p~n", [TripList]),
-      io:format("TimerList: ~p~n", [TimerList]),
+      tripManager(DriversList, PassengersList, TripList, TimerList);
+
+    {trip_canceled_normally} ->
+      io:format("VIAGEM CANCELADA NORMALMENTE, DADOS:~n"),
+      io:format("DriversList: ~p~n", [DriversList]),
+      io:format("PassengersList: ~p~n", [PassengersList]),
       tripManager(DriversList, PassengersList, TripList, TimerList);
 
     {trip_ended, DPid} ->
       io:format("VIAGEM ACABOU NORMALMENTE, DADOS:~n"),
       io:format("DriversList: ~p~n", [DriversList]),
       io:format("PassengersList: ~p~n", [PassengersList]),
-      io:format("TripList: ~p~n", [TripList]),
-      io:format("TimerList: ~p~n", [TimerList]),
       Driver_Passenger = lists:keyfind(DPid, 1, TripList),
       tripManager(DriversList, PassengersList, TripList -- [Driver_Passenger], TimerList)
   end.

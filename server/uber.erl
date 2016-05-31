@@ -131,8 +131,8 @@ driver(Sock) ->
       user(Sock);
 
     {cancel_trip, _} ->
-      io:format("Enviado trip_ended para o driver~n"),
-      gen_tcp:send(Sock, "trip_canceled\n"),
+      io:format("Enviado cancel_trip para o driver~n"),
+      gen_tcp:send(Sock, "cancel_trip\n"),
       user(Sock);
     {cancel_trip_before_time, _} ->
       io:format("Enviado cancel_trip_before_time para o driver~n"),
