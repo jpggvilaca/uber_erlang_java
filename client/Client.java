@@ -41,11 +41,12 @@ public class Client {
 
     String patternOne = "[1-2]:[a-z]+:[a-z]+:[a-z]+:[1-2](:[a-z]*:[a-z]*)?";
     String patternTwo = "[1-2]:[a-z_]+:[0-9]+:[0-9]+(:[0-9]?:[0-9])?";
+    String patternThree = "cancel_trip|start_trip";
 
     while(true) {
       String readerInput = reader.readLine(); // Read from console
 
-      if(readerInput.matches(patternOne) || readerInput.matches(patternTwo)) {
+      if(readerInput.matches(patternOne) || readerInput.matches(patternTwo) || readerInput.matches(patternThree)) {
         printer.print(readerInput.trim()); // Sends it to the socket
         printer.flush();
       }
